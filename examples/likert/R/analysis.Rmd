@@ -1,0 +1,433 @@
+---
+title: "Likert data analyses"
+output:
+  github_document:
+    df_print: kable
+---
+
+This document shows several different analyses of a single Likert-type item. It is by no means exhaustive.
+
+If you want to skip the details, there is a [summary of the results](#summary-of-results) at the bottom of the document.
+
+## Setup
+
+```{r setup, message = FALSE, warning = FALSE, results = "hide"}
+library(gamlss)
+library(gamlss.tr)
+library(simpleboot)
+library(tidyverse)
+library(broom)
+library(ggstance)
+library(tidybayes)
+library(ordinal)
+library(betareg)
+library(brms)
+library(rstanarm)
+library(rstan)
+library(emmeans)
+library(modelr)
+library(forcats)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+theme_set(theme_light())
+```
+
+
+## Data
+
+Read in likert-type data from the "blinded with science" study. The study has 4
+experiments. In each experiment, each participant is either shown a text about a
+hypothetical drug ("no graph" condition) or the same text with a chart ("graph"
+condition). The participant is then asked to assess to what extent the drug is
+effective, on a scale from 1 to 7. We focus on this data here. The study has
+another dependent variable that's more important (error of the response to a
+comprehension question) but it's not Likert-type data.
+
+Let's read in the data:
+
+```{r}
+blinded <- read_csv("blinded.csv",
+  col_types = cols(
+    experiment = col_integer(),
+    condition = col_character(),
+    effectiveness = col_integer()
+  )) %>%
+  mutate(
+    experiment = paste0("e", experiment),
+    condition = fct_recode(condition, `no graph` = "no_graph")
+  )
+head(blinded)
+```
+
+It looks like this:
+
+```{r}
+blinded %>%
+  ggplot(aes(x = ordered(effectiveness))) +
+  stat_count() +
+  facet_grid(rows = vars(condition), cols = vars(experiment)) +
+  xlab("effectiveness")
+```
+
+## Analyses
+
+### Bootstrap CI
+
+For each experiment, compute the difference between the two means and its 95% bootstrap CI.
+
+First, we'll create a helper function to compute bootstrap CIs in a tidy way (with `broom`-compatible output):
+
+```{r}
+tidy_bootstrap_mean_diff <- function(group1, group2, conf.level = 0.95, R = 1000, seed = 98432098) {
+  set.seed(seed) # make deterministic
+  bootstrap_samples <- two.boot(sample1 = group1, sample2 = group2, FUN = function(x, d) mean(x[d]), R = R)
+  bootci <- boot.ci(bootstrap_samples, type = "bca", conf = conf.level)
+  data.frame(
+    estimate = mean(group1) - mean(group2),
+    conf.low = bootci$bca[4],
+    conf.high = bootci$bca[5]
+  )
+}
+```
+
+Now we'll apply that function within each experiment:
+
+```{r}
+result_boot = blinded %>%
+  group_by(experiment) %>%
+  do(tidy_bootstrap_mean_diff(
+    filter(., condition == "no graph")$effectiveness,
+    filter(., condition == "graph")$effectiveness
+  )) %>%
+  mutate(
+    method = "bootstrap",
+    estimate_type = "mean"
+  )
+
+result_boot
+```
+
+### t-test
+
+For each experiment, compute the difference between the two means, its 95% t-based CI and the p-value.
+
+We'll use the `broom::tidy` function, which cleans up test and model outputs into a common tidy format:
+
+```{r}
+result_t = blinded %>%
+  group_by(experiment) %>%
+  do(tidy(t.test(effectiveness ~ fct_rev(condition), data = .))) %>%
+  mutate(
+    method = "t-test",
+    estimate_type = "mean"
+  )
+
+result_t
+```
+  
+### Wilcoxon
+
+Compute the Wilcoxon signed-rank test and p-value. The `estimate` (and 95% CIs) in this are for the median of the difference between samples (*not* the difference in the medians).
+
+```{r}
+result_wilcoxon = blinded %>%
+  group_by(experiment) %>%
+  do(tidy(wilcox.test(effectiveness ~ fct_rev(condition), data = ., conf.int = TRUE, exact = FALSE, correct = FALSE))) %>%
+  mutate(
+    method = "wilcoxon",
+    estimate_type = "Hodges–Lehmann"
+  )
+
+result_wilcoxon
+```
+
+
+### Beta regression
+
+For an argument for the use of Beta regression on data like this (in a frequentist mode), see [here](https://www.ncbi.nlm.nih.gov/pubmed/16594767). There are two tricky bits: (1) the data needs to be rescaled to be in $(0,1)$; in the case of a Likert item response in $[1,k]$ a natural approach might be to divide the values by $k + 1$, in this case, 10. (2) Getting estimates of mean differeneces on the original scale is a pain---for the frequentist version I won't do this, but for the Bayesian version I will (because I actually know how to do that).
+
+First, we'll fit a beta regression within each experiment, using default priors:
+
+```{r}
+models_beta_freq = blinded %>%
+  group_by(experiment) %>%
+  do(model = betareg(I(effectiveness/10) ~ condition, data = .))
+```
+
+Then we'll get an estimate for the log odds ratio between conditions:
+
+```{r}
+result_beta_freq = models_beta_freq %>% 
+  mutate(fits = list(tidy(model, conf.int = TRUE))) %>%
+  unnest(fits) %>%
+  filter(term == "conditionno graph", component == "mean") %>%
+  mutate(
+    method = "beta regression",
+    estimate_type = "log odds ratio"
+  )
+
+result_beta_freq
+```
+
+### Bayesian Beta regression
+
+This is a Bayesian formulation of Beta regression. I show the Bayesian approach here because it makes it easier to generate marginal means on the original scale (and intervals on them).
+
+First, we'll fit a beta regression within each experiment, using default priors:
+
+```{r}
+set.seed(31818) # for reproducibility
+models_beta = blinded %>%
+  nest(-experiment) %>%
+  mutate(model = map(data, ~ stan_betareg(I(effectiveness/10) ~ condition, data = .)))
+```
+
+Then we'll get an estimate for the predicted marginal means in each condition, and then find the posterior distribution for the difference in those means:
+
+```{r}
+result_beta = models_beta %>% 
+  mutate(draws = map(model, fitted_draws, data_grid(blinded, condition))) %>%
+  unnest(draws) %>%
+  # .value contains draws from marginal means on 0-1 scale,
+  # transform back to original scale
+  mutate(.value = .value * 10) %>%
+  group_by(experiment) %>%
+  # get draws from distribution of difference in marginal means
+  compare_levels(.value, by = condition) %>%
+  median_qi(.value) %>%
+  to_broom_names() %>%
+  mutate(
+    method = "beta reg (Bayes)",
+    estimate_type = "mean"
+  )
+
+result_beta
+```
+
+
+### Ordinal logistic regression
+
+Another model often applied to Likert-type data is ordinal models. Ordinal models come in plenty of flavors; we'll use a cumulative link logisitic regression model (also often called ordinal logisitic regression), which is a common variety.
+
+```{r}
+models_ord_freq = blinded %>%
+  nest(-experiment) %>%
+  mutate(model = map(data, ~ clm(ordered(effectiveness, levels = as.character(1:9)) ~ condition, data = .)))
+```
+
+Then we'll get an estimate for the log odds ratio between conditions:
+
+```{r}
+result_ord_freq = models_ord_freq %>% 
+  mutate(fit = map(model, ~ tidy(pairs(emmeans(., ~ condition), reverse = TRUE), infer = TRUE))) %>%
+  unnest(fit) %>%
+  rename(
+    conf.low = asymp.LCL,
+    conf.high = asymp.UCL
+  ) %>%
+  select(-data, -model) %>%
+  mutate(
+    method = "ordinal reg",
+    estimate_type = "log odds ratio"
+  )
+
+result_ord_freq
+```
+
+
+### Bayesian Ordinal logistic regression
+
+We'll do an ordinal logistic regression in a Bayesian manner because it will make it easier to get estimates of marginal means on the original scale afterwards:
+
+```{r}
+set.seed(221818) # for reproducibility
+models_ord = blinded %>%
+  nest(-experiment) %>%
+  mutate(model = map(data, ~ brm(
+    effectiveness ~ condition, data = ., family = cumulative(link = "logit"),
+    prior = c(prior(normal(0, 1), class = b), prior(normal(0, 5), class = Intercept)),
+    control = list(adapt_delta = .99)
+  )))
+```
+
+Then pull out the estimates:
+
+```{r}
+result_ord = models_ord %>%
+  mutate(draws = map(model, fitted_draws, data_grid(blinded, condition), value = "P(effectiveness|condition)")) %>%
+  unnest(draws) %>%
+  # calculate marginal means
+  group_by(experiment, condition, .draw) %>%
+  mutate(effectiveness = as.numeric(as.character(.category))) %>%
+  summarise(.value = sum(effectiveness * `P(effectiveness|condition)`)) %>%
+  # distribution of difference in marginal means
+  group_by(experiment) %>%
+  compare_levels(.value, by = condition) %>%
+  median_qi(.value) %>%
+  to_broom_names() %>%
+  mutate(
+    method = "ordinal reg (Bayes)",
+    estimate_type = "mean"
+  )
+
+result_ord
+```
+
+
+### Robust regression
+
+We'll use a robust, heteroskedastic linear regression: a Student t error distribution instead of Gaussian error distribution, and estimate a different variance parameter for each group. This is essentially Kruschke's [BEST test](http://www.indiana.edu/~kruschke/BEST/BEST.pdf) (a Bayesian, robust, hetereoskedastic alternative to the t-test), but estimated using a frequentist procedure instead of a Bayesian one:
+
+```{r}
+gamlss_fixed = function(..., data) {
+  # gamlss has a bug where it does not work if `data` is not in the global environment (!!!!)
+  temp_df <<- data
+  gamlss(..., data = temp_df)
+}
+
+models_robust = blinded %>%
+  group_by(experiment) %>%
+  do(model = gamlss_fixed(effectiveness ~ condition, sigma.formula = ~ condition, family = "TF", data = .))
+```
+
+Then pull out the estimates:
+
+```{r}
+result_robust = models_robust %>%
+  mutate(estimates = list(tidy(pairs(emmeans(model, ~ condition), reverse = TRUE), infer = TRUE))) %>%
+  unnest(estimates) %>%
+  rename(conf.low = asymp.LCL, conf.high = asymp.UCL) %>%
+  select(-model) %>%
+  mutate(
+    method = "robust",
+    estimate_type = "mean"
+  )
+
+result_robust
+```
+
+### Truncated regression
+
+Or how about a truncated normal regression? As before, we'll also include hetereoskedasticity.
+
+```{r}
+gen.trun(c(min(blinded$effectiveness - 0.5), max(blinded$effectiveness) + 0.5), type = "both")
+
+models_trun = blinded %>%
+  group_by(experiment) %>%
+  do(model = gamlss_fixed(effectiveness ~ condition, sigma.formula = ~ condition, family = "NOtr", data = .))
+```
+
+Then pull out the estimates:
+
+```{r}
+result_trun = models_trun %>%
+  mutate(estimates = list(tidy(pairs(emmeans(model, ~ condition), reverse = TRUE), infer = TRUE))) %>%
+  unnest(estimates) %>%
+  rename(conf.low = asymp.LCL, conf.high = asymp.UCL) %>%
+  select(-model) %>%
+  mutate(
+    method = "truncated",
+    estimate_type = "mean"
+  )
+
+result_trun
+```
+
+
+## Summary of results
+
+First, we'll stick all the result data frames together into a single tidy data frame:
+
+```{r}
+results = bind_rows(
+  result_boot,
+  result_t,
+  result_wilcoxon,
+  result_beta,
+  result_beta_freq,
+  result_ord_freq,
+  result_robust,
+  result_trun,
+  result_ord
+) %>%
+  ungroup() %>%
+  mutate(
+    method = fct_reorder(method, estimate, max, .desc = TRUE),
+    `estimate type` = estimate_type,
+    `95% interval contains 0` = conf.low < 0 & 0 < conf.high
+  )
+```
+
+Here are the estimates:
+
+```{r, fig.width = 10, fig.height = 2.4}
+results_plot = results %>%
+  ggplot(aes(x = estimate, xmin = conf.low, xmax = conf.high, y = method, shape = `estimate type`, color = `95% interval contains 0`)) +
+  geom_pointrangeh() +
+  facet_grid(cols = vars(experiment)) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  scale_y_discrete(labels = . %>% map(function(x) bquote(underline(.(x))))) +
+  theme(axis.text.y = element_text(color = "#4466ff"))
+
+results_plot_original_units = results_plot %+% 
+  filter(results, estimate_type != "log odds ratio") +
+  xlab("no graph - graph, original units") +
+  scale_x_continuous(breaks = c(-1,0,1))
+
+results_plot_original_units
+```
+
+```{r include=FALSE}
+ggsave("figures/results_plot_original_units.pdf", results_plot_original_units, width = 10, height = 2.4, useDingbats = FALSE)
+```
+
+Pretty much however you do it the results come out the same. The above plots show estimates that are in the original units. The Wilcoxon estimates look weird, but it is also estimating a slightly different quantity (median of the differences), so that probably isn't too surprising.
+
+From two of the models we have also output estimates on a log-odds scale:
+
+```{r fig.width = 10, fig.height = 1.3}
+results_plot_log_odds = results_plot %+% 
+  filter(results, estimate_type == "log odds ratio") +
+  guides(shape = FALSE) +
+  xlab("graph - no graph, log odds ratio")
+
+results_plot_log_odds
+```
+
+```{r include=FALSE}
+ggsave("figures/results_plot_log_odds.pdf", results_plot_log_odds, width = 10, height = 1.3, useDingbats = FALSE)
+```
+
+While these are both on the log odds scale, they are measuring log odds of different things, so it is hard to compare the values directly. It does look like if they were scale by their variances they might be similar.
+
+Finally, the p values from all methods (where p values are provided):
+
+```{r, fig.width = 10, fig.height = 5}
+p_value_plot = results %>%
+  ggplot(aes(x = p.value, y = method, color = p.value < 0.05)) +
+  geom_point() +
+  facet_grid(cols = vars(experiment)) +
+  geom_vline(xintercept = 0.05, linetype = "dashed")
+
+p_value_plot
+```
+
+Or the same chart on a log scale:
+
+```{r, fig.width = 10, fig.height = 5}
+p_value_plot + 
+  scale_x_log10()
+```
+
+
+And as a table:
+
+```{r}
+results %>%
+  arrange(experiment) %>%
+  select(experiment, method, statistic, p.value, estimate, estimate_type, conf.low, conf.high)
+```
+
+

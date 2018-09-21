@@ -1,0 +1,79 @@
+   .letter {
+   /*position: relative;*/
+   background: white;
+   width: 8.5in;
+   height: 11in;
+   /*display: block;*/
+   margin: 0 auto;
+   padding: 0.75in 0.75in 1in 0.75in;
+   margin-bottom: 0.5cm;
+   box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+   overflow-y: hidden;
+   box-sizing: border-box;
+   display: block;
+   flex-direction: column;
+   flex-wrap: wrap;
+   }
+
+/*@media print {
+   .page-break {
+   display: block;
+   page-break-before: always;
+   }
+   size: letter portrait;
+   }
+   @media print {
+   body {
+   margin: 0;
+   padding: 0;
+   }
+   .A4 {
+   box-shadow: none;
+   margin: 0;
+   width: auto;
+   height: auto;
+   }
+   .noprint {
+   display: none;
+   }
+   .enable-print {
+   display: block;
+   }
+}*/
+
+
+
+
+
+   img{
+      /*width: 3.33in !important;*/
+   }
+   #teaser.img {
+      width: 100% !important;
+   }
+
+body {
+    counter-reset: reference;
+    counter-reset: figure;
+}
+
+h2{
+   text-transform: uppercase;
+}
+
+.authors.chrome{
+   margin: -75px 0px 75px -110px;
+}
+
+.authors.firefox{
+   width: 7in;
+}
+
+.double-column.firefox{
+   width: 7in;
+}
+
+.double-column{
+   column-span: all;
+   margin-bottom: 10px;
+}

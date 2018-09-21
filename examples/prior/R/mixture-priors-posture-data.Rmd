@@ -1,0 +1,274 @@
+
+## Analysis of the data collected for experiment 2 in the CHI 2018 article:
+## How Relevant are Incidental Power Poses for HCI?
+## To explore the effects of using mixture priors
+
+
+```{r}
+library(rstan)
+library(bridgesampling)
+#library(rethinking)
+library(tidybayes)
+library(tidyverse)
+library(magrittr)
+library(matrixStats)
+library(modelr)
+library(broom)
+library(shiny)
+library(sm)
+
+```
+
+## Data
+
+Load the data
+
+```{r}
+df <- read.csv("posture-master/data/exp2.csv")
+
+df %<>%
+  mutate(condition = condition == 'expansive')
+```
+
+## Stan models
+
+Model 1: The first model is the BEST test model as described by Kruschke in the paper *Bayesian estimateion supersedes the t-test*. In this model, $\beta$ indicates the mean difference in the outcome variable between the two groups (in this case, the percent change in the BART scores). We fit different priors on $\beta$ and set different weights on these priors to obtain our posterior estimate.
+
+$$
+\begin{align}
+y_{i} &\sim \mathrm{T}(\nu, \mu, \sigma) \\
+\mu &= \alpha_{0} + \beta * x_i \\
+\sigma &= \sigma_{a} + \sigma_{b}*x_i \\
+\beta &\sim \mathrm{N}(\mu_{0}, \sigma_{0}) \\
+\sigma_a, \sigma_b &\sim \mathrm{Cauchy}(0, 2) \\
+\nu &\sim \mathrm{exp}(30)
+\end{align}
+$$
+
+
+```{stan, output.var = "bayes_est_model"}
+data{
+    int<lower=1> N;
+    int<lower=1> N_condition;
+    real y[N];
+    int condition[N];
+    real y_bar; // observed mean of the outcome variable
+    real prior_mu; // prior mean on the coefficient
+    real prior_sigma; // prior stdev on the coefficient
+}
+parameters{
+    real a_0;
+    real b;
+    real<lower=0> v;
+    real b_sigma; 
+    real temp_sigma_Intercept; 
+}
+model{
+    vector[N] mu;
+    vector[N] sigma;
+    
+    for ( i in 1:N ) {
+        mu[i] = a_0 + b * condition[i];
+        sigma[i] = temp_sigma_Intercept + b_sigma * condition[i];
+    }
+    
+    //priors
+    target += exponential_lpdf( v | 30 );
+    target += cauchy_lpdf(b_sigma | 0, 2); 
+    target += cauchy_lpdf(temp_sigma_Intercept | 0, 2); 
+    target += normal_lpdf( b | prior_mu, prior_sigma );
+    target += normal_lpdf( a_0 | y_bar, 10 );
+    
+    //likelihood
+    target += student_t_lpdf( y | v , mu , sigma );
+}
+```
+
+Estimating the implied prior on the mean difference:
+
+```{r}
+m <- sd(df$orig)/2
+sdev <- 2*sd(df$orig)
+
+rate <- ( m + sqrt( m^2 + 4*sdev^2 ) ) / ( 2 * sdev^2 )
+shape <- 1 + m * rate
+
+g <- rgamma(1e2, shape, rate)
+
+get_random.dens <- function(sd){
+  return(diff(rnorm(2, 0, sd)))
+}
+
+sd(map_dbl(g, get_random.dens))
+```
+
+
+## Functions for generating mixture priors
+
+Below, we have created the functions which can be used as a pipeline to get a data.frame of posterior samples computed using the mixture priors.
+
+*fitted_single_models* takes in the data as a list, the compiled stan_model (of class "stanmodel"), and the priors as a data.frame, where each row corresponds to a set of priors for the model. It returns a posterior samples for each set of priors, and the marginal log-likelihood for each posterior. The log-likelihood is important for calculating the posterior weights.
+
+```{r}
+# data needs to be provided as a list
+# priors need to be provided as a data.frame
+fitted_single_models <- function(obs.data, stan_model, priors){
+  mixture_models <- priors %>%
+    nest(-j) %>%
+    mutate(
+      fit = map(data, ~ sampling(
+      stan_model,
+      data = compose_data(as.list(.), obs.data),
+      iter = 10000,
+      warmup = 1000,
+      chain = 2,
+      cores = 2
+    ))) %>%
+  unnest(data) %>%
+  mutate(
+    bs = map(fit, bridge_sampler, silent = TRUE),
+    log_C = unlist(map(bs, "logml"))
+  )
+  
+  return(mixture_models)
+}
+
+prior_post_model_densities <- function(fitted_models, grid, post_parameter){
+  prior_densities <- fitted_models %>%
+    mutate(
+      j = as.factor(j),
+      grid = list(grid)
+    ) %>%
+    unnest(grid) %>%
+    mutate( prior_d = prior_f(grid, prior_mu, prior_sigma) )
+  
+  post_densities <- fitted_models %>%
+    mutate(
+      j = as.factor(j),
+      posterior_estimates = map(fit, tidy_draws)
+    ) %>%
+    unnest(posterior_estimates) %>%
+    select(j, post_parameter) %>%
+    group_by(j) %>%
+    nest(post_parameter) %>%
+    mutate(
+      d = map(data, ~post_f(grid, .x[[post_parameter]]))
+    ) %>%
+    unnest(d)
+  
+  return( left_join(prior_densities, post_densities) )
+}
+
+#Helper functions for calculating posterior densities
+prior_f = function(grid, mu, sigma) {
+  return(dnorm(grid, mu, sigma))
+}
+ 
+post_f = function(grid, data) {
+  d = tibble(
+    grid = grid,
+    post_d = sm.density(data, h = 0.5, model = "epanechnikov", eval.points = grid, display = "none")$estimate
+  )
+  return(d)
+}
+```
+
+
+### Calculating optimistic mean difference between the two conditions
+To calculate the optimistic mean difference we use the effect size of risk-taking behavior.
+The original effect size estimate by Carney et. al. in the paper is ~0.6. This value was found here: http://www.slate.com/articles/health_and_science/science/2016/01/amy_cuddy_s_power_pose_research_is_the_latest_example_of_scientific_overreach.html
+
+The meta-analytic standardized effect size estimate is ~0.2. Using this effect size, we can make an estimate for the mean for the optimistic priors
+
+```{r}
+get_pooled_sd <- function(df, condition_name, variable){
+  condition_name = enquo(condition_name)
+  variable = enquo(variable)
+  
+  df %>%
+    group_by(!! condition_name) %>%
+    select(!! variable) %>%
+    summarise( n = n(), sd = sd(!! variable) ) %>%
+    mutate( d = (n-1)*sd^2 ) %>%
+    summarise( n = sum(n), d = sum(d) ) %>%
+    mutate( sd_pooled = sqrt(d / (n - 2)) ) %>%
+    select(sd_pooled) %>%
+    as.numeric(.)
+}
+
+sd_pooled.orig <- get_pooled_sd(df, condition, orig)
+sd_pooled.change <- get_pooled_sd(df, condition, change)
+```
+
+
+```{r}
+sd_pooled <- sd_pooled.orig # uncomment this to use orig as the variable instead
+#sd_pooled <- sd_pooled.change
+mu.optim.1 <- floor(0.23 * sd_pooled) # expected mean difference, based on the meta-analytic estimate
+mu.optim.2 <- floor(0.6 * sd_pooled) # expected mean difference, based on the Carney et. al.'s paper
+
+mixture_priors <- data.frame(
+  prior_mu = c(0, 3, 6, 9, 0, 3, 6, 9),
+  prior_sigma = c(2, 2, 2, 2, 10, 10, 10, 10),
+  prior_weight = c(0.25, 0.25, 0, 0, 0.25, 0.25, 0, 0)
+) %>%
+  mutate(
+    j = seq.int(nrow(.))
+  )
+
+d.BEST <- list(
+  N = nrow(df),
+  N_condition = as.integer(length(unique(df$condition))),
+  condition = as.integer(df$condition),
+  sigma_condition = as.integer(ifelse(df$condition, 1, 2)),
+  y = df$orig, # change to 'orig' here
+  y_bar = mean(df$orig) # change to 'orig' here
+)
+```
+
+
+```{r}
+xgrid <- seq(-40, 40, length.out = 2000)
+
+mixture.BEST <- d.BEST %>%
+  fitted_single_models(bayes_est_model, mixture_priors) 
+
+mixture.BEST.densities <- mixture.BEST %>%
+  prior_post_model_densities( xgrid, 'b') %>%
+  # this is not necessary
+  # we only use this because wanted to show the prior by Jansen and Hornbaek
+  mutate(prior_d_jansen = unlist(rep(list(prior_f(xgrid, 0, sd(y.mean.diff))), 8)))
+
+write.csv(mixture.BEST.densities, "prior_posterior_density_estimates.csv")
+```
+
+
+```{r}
+estimates.BEST <- mixture.BEST %>%
+  mutate(
+    j = as.factor(j),
+    posterior_estimates = map(fit, tidy_draws)
+  ) %>%
+  unnest(posterior_estimates) %>%
+  mutate(
+    estimate = b
+  ) %>%
+  select(j, prior_mu, prior_sigma, log_C, estimate)
+
+mixture.BEST %>%
+  mutate(
+    prior_weight = c(0.25, 0.25, 0.25, 0.25), # change the weights here
+    post_weight =  as.numeric(exp( log(prior_weight) + log_C - logSumExp(log(prior_weight) + log_C) )),
+    posterior_estimates = map(fit, tidy_draws)
+  ) %>%
+  unnest(posterior_estimates) %>%
+  mutate(
+    estimate = b
+  ) %>%
+  sample_n(nrow(.)/max(.$j), weight = post_weight) %>%
+  ggplot(aes(x = estimate)) +
+  geom_density(data = estimates.BEST, aes(estimate, color = j)) +
+  stat_density(fill = "gray75", alpha = 0.8)
+```
+
+

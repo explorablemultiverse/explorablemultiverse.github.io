@@ -1,0 +1,476 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <style type="text/css">
+        img#fig1, img#fig2{
+      min-height: 120px;
+    }
+    img#bar-charts {
+      min-height: 146px;
+    }
+    img#comparisons {
+      min-height: 135px;
+    }
+  </style>
+  <script src="../commons/scripts/interactive_paper.js"></script>
+  <script type="text/javascript" src="https://distill.pub/template.v1.js"></script>
+
+  <script type="text/javascript" src="../commons/scripts/Tangle.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/mootools.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/sprintf.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/BVTouchable.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/TangleKit.js"></script>
+  <link rel="stylesheet" href="../commons/css/pubcss-acm-sigchi.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style-shared.css" media="screen" />
+  <!-- TangleKit (optional) -->
+  <link rel="stylesheet" href="../commons/scripts/TangleKit/TangleKit.css" type="text/css">
+  <script type="text/javascript">
+// Pace.start();
+
+  var tangle = null;
+
+  function setUpTangle () {
+
+      // tip: use as tangle root whatever element is an ancestor of all tangle elements.
+      var tangleRoot = document.getElementById("tangleRoot");
+
+      tangle = new Tangle(tangleRoot, {
+          initialize: function () {
+              // 0. default statistical analysis options
+
+              this.confidence_level = 95;
+              this.bootstrap = false;
+              this.log_transform = true;
+              this.bonferroni = false;
+              this.n_comparisons = 3;
+
+          },
+          randomize: function () {
+
+              // Set options to a random value. Used for animating the multiverse. Make sure
+              // all values are legal and accessible through the Tangle UI controls.
+
+              // it probably makes more sense to leave the confidence level unchanged
+              //this.confidence_level = 95;//rnd_list(50,68,80,90,95,99,99.9);
+              this.bootstrap = rnd_bool();
+              this.log_transform = rnd_bool();
+              this.bonferroni = rnd_bool();
+              this.n_comparisons = 3; // fixed.
+          },
+          update: function () {
+
+              // 1. update the figures
+
+              var file_suffix = "" + Math.round(this.confidence_level*10)/1000 + (this.bootstrap?"-bootstrapped":"") + (this.log_transform?"-log-transformed":"") + (this.bonferroni?"-bonferroni-adjusted":"") + ".jpg";
+              var fig1 = "R/figures/fig1-" + file_suffix;
+              var fig2 = "R/figures/fig2-" + file_suffix;
+
+              document.getElementById('fig1').src = fig1;
+              document.getElementById('fig2').src = fig2;
+
+              // 2. update the text
+
+              this.confidence95 = (this.confidence_level == 95);
+              this.alpha_level = 1 - this.confidence_level/100, 2;
+              this.cite_sauro_lewis = !this.bootstrap && this.log_transform;
+              if (this.bonferroni) {
+                  // Bonferroni correction. Not exact but simpler.
+                  this.individual_alpha_level = this.alpha_level / this.n_comparisons;
+                  // Šidák correction. Ensures exact familywise alpha.
+                  //this.corrected_alpha_level = 1 - Math.pow((1 - this.alpha_level), 1/this.n_comparisons)
+                  this.individual_confidence_level = 100 * (1 - this.individual_alpha_level);
+              } else {
+                  this.individual_alpha_level = this.alpha_level;
+                  this.individual_confidence_level = this.confidence_level;
+              }
+              this.familywise_error_rate = 1 - Math.pow((1-this.individual_alpha_level), this.n_comparisons);
+              this.simultaneous_confidence_level = 100 * (1 - this.familywise_error_rate);
+
+          }
+      });
+  }
+  </script>
+
+  <!-- CSS code taken from pubcss that adds figure numbering also for the distill layout. -->
+  <style>
+  a[href^="#"].figure {
+    content: target-counter(attr(href, url), figure); }
+    a[href^="#"].figure::before {
+      content: "Figure "; }
+    a[href^="#"].figure::after {
+      content: ''; }
+    figure {
+        counter-increment: figure;
+    }
+
+    figcaption::before {
+          content: "Figure " counter(figure) ". ";
+    }
+
+</style>
+</head>
+
+<body id="tangleRoot" onload="setTimeout(function(){ afterImagePreload(); }, 1000);">
+<div id="loading" class="cover"><div class="cover-text">Loading...</div></div>
+<noscript class="cover"><div class="cover-text">This website requires <strong>javascript</strong> to display its content correctly. Please activate javascript and reload the page.</div></noscript>
+
+<!---------------------------------------------------------------------------------------------------->
+<!--  Start editing from here -->
+<!---------------------------------------------------------------------------------------------------->
+
+<script type="text/front-matter">
+  title: "Re-Evaluating the Efficiency of Physical Visualizations: A Simple Multiverse Analysis"
+  description: "Description of the post"
+  authors:
+  - Anonymous Author: http://anonymous.org
+  - Anonymous Author: http://anonymous.org
+  affiliations:
+  - Anonymous affiliation: http://anonymous.org
+  - Anonymous affiliation: http://anonymous.org
+</script>
+
+<dt-article>
+    <header class="col-span">
+      <h1 class="title">Re-Evaluating the Efficiency of Physical Visualizations: A Simple Multiverse Analysis</h1>
+        <div class="authors col-2">
+          <div class="author">
+              <br/>
+              <div><b>Anonymous Author</b></div>
+              <div>Anonymous affiliation</div>
+              <div>anonymous@email.org</div>
+          </div>
+          <div class="author">
+              <br/>
+              <div><b>Anonymous Author</b></div>
+              <div>Anonymous affiliation</div>
+              <div>anonymous@email.org</div>
+          </div>
+        </div>
+    </header>
+  <dt-byline></dt-byline>
+  <h2 id="Abstract">Abstract</h2>
+
+<p>A previous study has shown that moving 3D data visualizations to the physical world can improve users' efficiency at information retrieval tasks. Here, we re-analyze a subset of the experimental data using a multiverse analysis approach. Results from this multiverse analysis are presented as explorable explanations, and can be interactively explored in this paper. The study's findings appear to be robust to choices in statistical analysis.</p>
+
+<h2 id="keywords">Author Keywords</h2>
+<p id="keywords">Physical visualization; multiverse analysis.</p>
+
+<h2 id="acm">ACM Classification Keywords</h2>
+<p id="acm">H5.2 User Interfaces: Evaluation/Methodology</p>
+
+<h2 id="terms">General Terms</h2>
+<p id="terms">Human Factors; Design; Experimentation; Measurement.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Whereas traditional visualizations map data to pixels or ink, physical visualizations (or "data physicalizations") map data to physical form. While physical visualizations are compelling as an art form, it is unclear whether they can help users carry out actual information visualization tasks.</p>
+
+<p>Five years ago, a study was published comparing physical to on-screen visualizations in their ability to support basic information retrieval tasks <dt-cite key="Jansen2013"></dt-cite>. Interactive 2D representations were clearly the fastest, but a gain in speed was observed when transitioning from on-screen to physical 3D representations. Overall, the study suggested that features unique to physical objects – such as their ability to be directly touched – can facilitate information retrieval.</p>
+
+<p>These results however only hold for the particular data analysis that was conducted. A group of statisticians and methodologists recently argued that results from a single analysis can be unreliable <dt-cite key="Steegen2016"></dt-cite>. They recommended researchers to conduct instead <em>multiverse analyses</em>, i.e., to perform all reasonable analyses of their data and report a summary of their outcomes. While Steegen et al. show how to summarize all outcomes using p-values, here we use an interactive approach based on Bret Victor's concept of <em>explorable explanation</em> <dt-cite key="Victor2011"></dt-cite>.</p>
+
+<figure class="l-body">
+<img id="bar-charts" src="figures/bar-charts.jpg" width="90%" style="min-height: 146px;" /><figcaption>3D bar chart, on-screen and physical.<span label="bar-charts"></span></figcaption>
+</figure>
+
+<h2 id="experiment">Study</h2>
+
+<p>The study consisted of two experiments. In the first experiment, participants were presented with 3D bar charts showing country indicator data, and were asked simple questions about the data. The 3D bar charts were presented both on a screen and in physical form (see Figure 1). The on-screen bar chart could be rotated in all directions with the mouse. Both a regular and a stereoscopic display were tested. An interactive 2D bar chart was also used as a control condition. Accuracy was high across all conditions, but average completion time was lower with physical 3D bar charts than with on-screen 3D bar charts.</p>
+
+<p>Here we only re-analyze the second experiment, whose goal was to better understand why physical visualizations appear to be superior. The experiment involved an “enhanced” version of the on-screen 3D chart and an “impoverished” version of the physical 3D chart. The enhanced on-screen chart was rotated using a 3D-tracked tangible prop instead of a mouse. The impoverished physical chart consisted of the same physical object but participants were instructed not to use their fingers for marking. There were 4 conditions:</p>
+
+<ul>
+<li><em>physical touch</em>: physical 3D bar charts where touch was explicitly encouraged in the instructions.</li>
+<li><em>physical no touch</em>: same charts as above except subjects were told not to use their fingers to mark points of interest (labels and bars).</li>
+<li><em>virtual prop</em>: on-screen 3D bar charts with a tangible prop for controlling 3D rotation.</li>
+<li><em>virtual mouse</em>: same charts as above, but 3D rotation was mouse-controlled.</li>
+</ul>
+
+<p>These manipulations were meant to answer three questions: <em>1)</em> how important is direct touch in the physical condition? <em>2)</em> how important is rotation by direct manipulation? <em>3)</em> how important is visual realism? Visual realism referred to the higher perceptual richness of physical objects compared to on-screen objects, especially concerning depth cues. Figure 2 summarizes the three effects of interest.</p>
+
+<figure class="l-body">
+<img id="comparisons" src="figures/comparisons.png" width="100%" style="min-height: 35px;"><figcaption>Effects of interest.<span label="comparisons"></span></figcaption>
+</figure>
+
+<p>Sixteen participants were recruited, all of whom saw the four conditions in counterbalanced order. For more details about the experiment, please refer to <dt-cite key="Jansen2013"></dt-cite>.</p>
+
+<h2 id="results">Results</h2>
+
+    <p>
+        Like the original paper we use an estimation approach, meaning that we report and interpret all results based on (unstandardized) effect sizes and their interval estimates <dt-cite key="Dragicevic2016"></dt-cite>. We explain how to translate the results into statistical significance language to provide a point of reference, but we warn the reader against the pitfalls of dichotomous interpretations <dt-cite key="Amrhein2017"></dt-cite>.
+    </p>
+
+
+    <figure>
+        <img id="fig1" width="100%" style="min-height: 125px;" />
+        <figcaption>Average task completion time
+            <span data-var="log_transform" class="TKSwitch">
+                <span>(arithmetic mean)</span>
+                <span>(geometric mean)</span>
+            </span>
+            for each condition. Error bars are <span data-var="confidence_level" data-format="pretty_percent"/>
+            <span data-var="bootstrap" class="TKSwitch">
+                <span>t-based</span>
+                <span>BCa bootstrap</span>
+            </span>
+            CIs.<span label="exp1-setup"/>
+        </figcaption>
+    </figure>
+
+    <p>
+        We focus our analysis on task completion times, reported in Figures 3 and 4. Dots indicate sample means, while error bars are
+        <span data-var="confidence_level" class="TKAdjustableOption" data-values="50,68,80,90,95,99,99.9" data-sensitivity="5" data-format="pretty_percent"></span>
+        confidence intervals computed on
+        <span data-var="log_transform" class="TKToggle TKSwitch">
+            <span>untransformed data</span>
+            <span>log-transformed data <dt-cite key="Sauro2010"></dt-cite></span>
+        </span>
+        using the
+        <span data-var="bootstrap" class="TKToggle TKSwitch">
+            <span>t-distribution</span>
+            <span>BCa bootstrap <dt-cite key="Kirby2013"></dt-cite></span>
+        </span>
+        method. Strictly speaking, all we can assert about each interval is that it comes from a procedure designed to capture the population mean <span data-var="confidence_level" data-format="pretty_percent"/> of the time across replications, under some assumptions <dt-cite key="Morey2016"></dt-cite>. In practice, if we assume we have very little prior knowledge about population means, each interval can be informally interpreted as a range of plausible values for the population mean, with the midpoint being
+        <span data-var="confidence95" class="TKSwitch">
+            <span></span>
+            <span>about 7 times</span>
+        </span>
+        more likely than the endpoints <dt-cite key="Cumming2012"></dt-cite>.
+    </p>
+
+    <p>
+        Figure 3 shows the
+        <span data-var="log_transform" class="TKSwitch">
+            <span>mean</span>
+            <span>(geometric) mean</span>
+        </span>
+        completion time for each condition. At first sight, <em>physical touch</em> appears to be faster than the other conditions.
+        However, since condition is a within-subject factor, it is preferable to examine within-subject differences <dt-cite key="Cumming2012"></dt-cite>, shown in Figure 4.
+    </p>
+
+    <p>
+        Figure 4 shows the pairwise
+        <span data-var="log_transform" class="TKSwitch">
+            <span>differences</span>
+            <span>ratios</span>
+        </span>
+        between mean completion times. A value lower than
+        <span data-var="log_transform" class="TKSwitch">
+            <span>0</span>
+            <span>1</span>
+        </span>
+        (i.e., on the left side of the dark line) means the condition on the left is faster than the condition on the right. The confidence intervals are
+        <span data-var="bonferroni" class="TKToggle TKSwitch">
+            <span>not corrected for multiplicity.</span>
+            <span>Bonferroni-corrected</span>
+            <!-- <span>Šidák-corrected</span> -->
+        </span>
+        <span data-var="bonferroni" class="TKSwitch">
+            <span>Since the individual confidence level is <span data-var="confidence_level" data-format="pretty_percent"></span>,</span>
+            <span>meaning they are effectively <span data-var="individual_confidence_level" data-format="pretty_percent"></span> CIs <dt-cite key="Baguley2012"></dt-cite>. Thus,</span>
+        </span>
+        an interval that does not contain
+        <span data-var="log_transform" class="TKSwitch">
+            <span>the value 0</span>
+            <span>the value 1</span>
+        </span>
+        incidates a statistically significant difference at the α=<span data-var="individual_alpha_level" data-format="pretty_prob"></span> level. The probability of getting at least one such interval if all <span data-var="n_comparisons"/> population means were zero (i.e., the familywise error rate) is α=<span data-var="familywise_error_rate" data-format="pretty_prob"/>. Likewise, the simultaneous confidence level is <span data-var="simultaneous_confidence_level" data-format="pretty_percent"/>, meaning that if we replicate our experiment over and over, we should expect the <span data-var="n_comparisons"></span> confidence intervals to capture all <span data-var="n_comparisons"></span> population means <span data-var="simultaneous_confidence_level" data-format="pretty_percent"></span> of the time.
+    </p>
+
+
+
+    <figure>
+        <img id="fig2" width="100%" style="min-height: 125px;" />
+       <figcaption>
+            <span data-var="log_transform" class="TKSwitch">
+                <span>Differences between mean completion times (arithmetic means)</span>
+                <span>Ratios between average task completion times (geometric means)</span>
+            </span> between conditions. Error bars are
+            <span data-var="bonferroni" class="TKSwitch">
+                <span></span>
+                <span>Bonferroni-corrected </span>
+            </span>
+            <span data-var="confidence_level" data-format="pretty_percent"/>
+            <span data-var="bootstrap" class="TKSwitch">
+                <span>t-based</span>
+                <span>BCa bootstrap</span>
+            </span>
+          CIs.
+        </figcaption>
+    </figure>
+
+    <p>Figure 4 provides good evidence that <em>i)</em> <em>physical touch</em> is faster on average than <em>physical no touch</em>, and that <em>ii)</em> <em>physical no touch</em> is faster than <em>virtual prop</em>. This suggests that both visual realism (e.g., rich depth cues) and physical touch can facilitate basic information retrieval. Importantly, these two properties are unique to physical objects and are hard to faithfully reproduce in virtual setups. In contrast, we could not find evidence that physical object rotation (as opposed to mouse-operated rotation) provides a performance advantage for information retrieval.
+    </p>
+
+<h2 id="conclusion">Discussion and Conclusion</h2>
+
+<p>Our findings for experiment 2 are in line with the previously published study <dt-cite key="Jansen2013"></dt-cite>. In the present article, the default analysis options reflect the choices made in the previously published analysis – thus, the figures are by default identical. On top of this, we consider alternative choices in statistical analysis and presentation, which together yield a total 56 unique analyses and results. The conclusions are largely robust to these choices. Results are less clean with untransformed data, likely because abnormally high completion times are given as much weight as other observations. The use of a log transformation addresses this issue without the need for outlier removal <dt-cite key="Sauro2010"></dt-cite>. </p>
+
+<p>Meanwhile, the use of bootstrap CIs makes the results slightly stronger, although this is likely because bootstrap CIs are slightly too liberal for small sample sizes <dt-cite key="Kirby2013"></dt-cite>.
+</p>
+
+<p>We did not re-analyze experiment 1 to keep this article simple. Since experiment 1 used four conditions and the reported analysis included a figure with seven comparisons <dt-cite key="Jansen2013"></dt-cite>, it is possible that some of the effects become much less conclusive after correcting for multiplicity. Multiplicity correction is however a contested practice <dt-cite key="Baguley2012"></dt-cite>, thus it is generally best to consider both corrected and uncorrected interval estimates.</p>
+
+<p>The goal of this article was to illustrate how the ideas of <em>multiverse analysis</em> <dt-cite key="Steegen2016"></dt-cite> and of <em>explorable explanation</em> <dt-cite key="Victor2011"></dt-cite> can be combined to produce more transparent and more compelling statistical reports. We only provided a few analysis options, and many more options could have been included. In addition, our choice of analysis options was highly personal and subjective. Steegen et al. have argued that multiverse analyses are necessarily incomplete and subjective, but are nonetheless way more transparent than conventional analyses where no information is provided about the robustness or fragility of researchers' findings <dt-cite key="Steegen2016"></dt-cite>.</p>
+
+</dt-article>
+
+<dt-appendix>
+</dt-appendix>
+
+
+<script type="text/bibliography">
+
+@INCOLLECTION{Dragicevic2016,
+  title     = {Fair Statistical Communication in HCI},
+  booktitle = {Modern Statistical Methods for HCI},
+  author    = "Dragicevic, Pierre",
+  editor    = "Robertson, Judy and Kaptein, Maurits",
+  publisher = "Springer International Publishing",
+  pages     = "291--330",
+  year      =  2016,
+  url       = "https://doi.org/10.1007/978-3-319-26633-6_13",
+  address   = "Cham",
+  isbn      = "9783319266336",
+  doi       = "10.1007/978-3-319-26633-6\_13"
+}
+
+@ARTICLE{Victor2011,
+  title   = {Explorable explanations},
+  author  = "Victor, Bret",
+  journal = "Bret Victor",
+  volume  =  10,
+  year    =  {2011}
+}
+
+@ARTICLE{Steegen2016,
+  title    = {Increasing Transparency Through a Multiverse Analysis},
+  author   = "Steegen, Sara and Tuerlinckx, Francis and Gelman, Andrew and
+              Vanpaemel, Wolf",
+  journal  = "Perspectives on psychological science: a journal of the
+              Association for Psychological Science",
+  volume   =  11,
+  number   =  5,
+  pages    = "702--712",
+  month    =  sep,
+  year     =  2016,
+  url      = "http://dx.doi.org/10.1177/1745691616658637",
+  keywords = "arbitrary choices; data processing; good research practices;
+              multiverse analysis; selective reporting; transparency",
+  language = "en",
+  issn     = "1745-6916, 1745-6924",
+  pmid     = "27694465",
+  doi      = "10.1177/1745691616658637"
+}
+
+@ARTICLE{Morey2016,
+  title    = {The fallacy of placing confidence in confidence intervals},
+  author   = "Morey, Richard D and Hoekstra, Rink and Rouder, Jeffrey N and
+              Lee, Michael D and Wagenmakers, Eric-Jan",
+  journal  = "Psychonomic bulletin \& review",
+  volume   =  23,
+  number   =  1,
+  pages    = "103--123",
+  month    =  feb,
+  year     =  2016,
+  url      = "http://dx.doi.org/10.3758/s13423-015-0947-8",
+  keywords = "Bayesian inference and parameter estimation; Bayesian statistics;
+              Statistical inference; Statistics",
+  language = "en",
+  issn     = "1069-9384, 1531-5320",
+  pmid     = "26450628",
+  doi      = "10.3758/s13423-015-0947-8",
+  pmc      = "PMC4742505"
+}
+
+@MISC{Baguley2012,
+  title     = {Serious Stats: A Guide to Advanced Statistics for the Behavioral
+               Science.},
+  author    = "Baguley, T",
+  year      = {2012},
+  publisher = "Palgrave Macmillan"
+}
+
+@ARTICLE{Amrhein2017,
+  title     = {The earth is flat (p> 0.05): significance thresholds and the
+               crisis of unreplicable research},
+  author    = "Amrhein, Valentin and Korner-Nievergelt, Fr{\"a}nzi and Roth,
+               Tobias",
+  journal   = "PeerJ",
+  publisher = "PeerJ Inc.",
+  volume    =  5,
+  pages     = "e3544",
+  year      =  2017,
+  url       = "https://peerj.com/articles/3544/?utm_source=TrendMD&utm_campaign=PeerJ_TrendMD_0&utm_medium=TrendMD"
+}
+
+@INPROCEEDINGS{Jansen2013,
+  title       = {Evaluating the Efficiency of Physical Visualizations},
+  booktitle   = {Proceedings of the SIGCHI Conference on Human Factors in
+                 Computing Systems},
+  author      = "Jansen, Yvonne and Dragicevic, Pierre and Fekete, Jean-Daniel",
+  publisher   = "ACM",
+  pages       = "2593--2602",
+  series      = "CHI '13",
+  institution = "ACM",
+  year        =  2013,
+  url         = "http://doi.acm.org/10.1145/2470654.2481359",
+  address     = "New York, NY, USA",
+  keywords    = "3d visualization, evaluation, physical visualization",
+  isbn        = "9781450318990",
+  doi         = "10.1145/2470654.2481359"
+}
+
+@INPROCEEDINGS{Sauro2010,
+  title     = {Average task times in usability tests: what to report?},
+  booktitle = "{Proceedings of the SIGCHI Conference on Human Factors in
+               Computing Systems}",
+  author    = "Sauro, Jeff and Lewis, James R",
+  publisher = "ACM",
+  pages     = "2347--2350",
+  month     =  apr,
+  year      =  2010,
+  url       = "https://dl.acm.org/citation.cfm?doid=1753326.1753679",
+  address   = "Atlanta, Georgia, USA",
+  keywords  = "geometric mean, median, monte carlo simulations, task times,
+               usability evaluation",
+  isbn      = "9781605589299",
+  doi       = "10.1145/1753326.1753679"
+}
+
+@BOOK{Cumming2012,
+  title     = {Understanding the New Statistics: Effect Sizes, Confidence
+               Intervals, and Meta-analysis},
+  author    = "Cumming, Geoff",
+  publisher = "Routledge",
+  series    = "Multivariate Applications Series",
+  year      =  2012,
+  url       = "https://market.android.com/details?id=book-AVBDYgEACAAJ",
+  language  = "en",
+  isbn      = "9780415879682"
+}
+
+@ARTICLE{Kirby2013,
+  title     = {BootES: an R package for bootstrap confidence intervals on
+               effect sizes},
+  author    = "Kirby, Kris N and Gerlanc, Daniel",
+  journal   = "Behavior research methods",
+  publisher = "Springer",
+  volume    =  45,
+  number    =  4,
+  pages     = "905--927",
+  month     =  dec,
+  year      =  2013,
+  url       = "http://dx.doi.org/10.3758/s13428-013-0330-5",
+  language  = "en",
+  issn      = "1554-351X, 1554-3528",
+  pmid      = "23519455",
+  doi       = "10.3758/s13428-013-0330-5"
+}
+</script>
+
+
+</body>

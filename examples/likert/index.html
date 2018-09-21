@@ -1,0 +1,437 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <script type="text/javascript" src="https://distill.pub/template.v1.js"></script>
+  <script type="text/javascript" src="../commons/scripts/Tangle.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/mootools.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/sprintf.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/BVTouchable.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/TangleKit.js"></script>
+  <script src="../commons/scripts/interactive_paper.js"></script>
+
+  <!-- specific imports and code for supporting better image maps -->
+  <script type="text/javascript" src="scripts/imageMapResizer.min.js"></script>
+  <!--<script type="text/javascript" src="scripts/jquery.maphilight.js"></script>-->
+
+
+<!--  <script type="text/javascript">$(function() {
+        $('.map').maphilight();
+        $('#squidheadlink').mouseover(function(e) {
+            $('#squidhead').mouseover();
+        }).mouseout(function(e) {
+            $('#squidhead').mouseout();
+        }).click(function(e) { e.preventDefault(); });
+
+        });
+  </script>
+-->
+
+  <link rel="stylesheet" href="../commons/css/pubcss-acm-sigchi.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style-shared.css" media="screen" />
+  <!-- TangleKit (optional) -->
+  <link rel="stylesheet" href="../commons/scripts/TangleKit/TangleKit.css" type="text/css">
+
+
+
+  <!-- -------------------------------------------------------------------------------------- -->
+  <!-- Tangle code here -->
+  <!-- -------------------------------------------------------------------------------------- -->
+  <script type="text/javascript">
+
+    var tangle = null;
+
+    function setUpTangle () {
+
+      // tip: use as tangle root whatever element is an ancestor of all tangle elements.
+      var tangleRoot = document.getElementById("tangleRoot");
+
+      tangle = new Tangle(tangleRoot, {
+        initialize: function () {
+
+          // Default statistical analysis options.
+
+          this.method = 1;
+        },
+        randomize: function () {
+
+          // Set options to a random value. Used for animating the multiverse. Make sure
+          // all values are legal and accessible through the Tangle UI controls.
+
+          this.method  = rnd_int(0,8);
+        },
+        update: function () {
+          // update your derived variables and your figures here.
+
+          // FIXME -- this can be avoided by developing a Tangle switch that supports
+          // integer values.
+          this.ttest = false;
+          this.bootstrap = false;
+          this.wilcoxon = false;
+          this.betaregression = false;
+          this.betaregbayes = false;
+          this.ordinalreg = false;
+          this.ordinalregbayes = false;
+          this.robust = false;
+          this.truncated = false;
+          switch(this.method) {
+            case 0: this.ttest = true; break;
+            case 1: this.bootstrap = true; break;
+            case 2: this.wilcoxon = true; break;
+            case 3: this.betaregression = true; break;
+            case 4: this.betaregbayes = true; break;
+            case 5: this.ordinalreg = true; break;
+            case 6: this.ordinalregbayes = true; break;
+            case 7: this.robust = true; break;
+            case 8: this.truncated = true; break;
+          }
+        }
+      });
+    }
+  </script>
+  <!-- -------------------------------------------------------------------------------------- -->
+
+
+  <!-- CSS code taken from pubcss that adds figure numbering also for the distill layout. -->
+  <style>
+  a[href^="#"].figure {
+    content: target-counter(attr(href, url), figure); }
+    a[href^="#"].figure::before {
+      content: "Figure "; }
+    a[href^="#"].figure::after {
+      content: ''; }
+    figure {
+        counter-increment: figure;
+    }
+
+    figcaption::before {
+          content: "Figure " counter(figure) ". ";
+    }
+
+</style>
+</head>
+<body id="tangleRoot" onload="setTimeout(function(){ afterImagePreload(); }, 1000);">
+<div id="loading" class="cover"><div class="cover-text">Loading...</div></div>
+<noscript class="cover"><div class="cover-text">This website requires <strong>javascript</strong> to display its content correctly. Please activate javascript and reload the page.</div></noscript>
+
+
+
+<!-- -------------------------------------------------------------------------------------- -->
+<!-- Start editing from here -->
+<!-- -------------------------------------------------------------------------------------- -->
+
+
+<!-- The front matter script below is required in exactly the shown format, i.e., don't remove the colons. -->
+<script type="text/front-matter">
+  title: "A Multiverse Reanalysis of Likert-Type Responses"
+  description: ""
+  authors:
+  - Anonymous Author: http://anonymous.org
+  - Anonymous Author: http://anonymous.org
+  affiliations:
+  - Anonymous affiliation: http://anonymous.org
+  - Anonymous affiliation: http://anonymous.org
+</script>
+
+<dt-article>
+  <header class="col-span">
+    <!-- Due to different front matter procedures, we need to enter title and author information twice. -->
+    <h1 class="title">A Multiverse Reanalysis of Likert-Type Responses</h1>
+         <div class="authors col-2">
+          <div class="author">
+              <br/>
+              <div><b>Anonymous Author</b></div>
+              <div>Anonymous affiliation</div>
+              <div>anonymous@email.org</div>
+          </div>
+          <div class="author">
+              <br/>
+              <div><b>Anonymous Author</b></div>
+              <div>Anonymous affiliation</div>
+              <div>anonymous@email.org</div>
+          </div>
+        </div>
+</header>
+<dt-byline></dt-byline>
+
+<h2 id="Abstract">Abstract</h2>
+
+<p>There is no consensus on how to best analyze responses to single Likert items. Therefore, studies involving Likert-type responses can be perceived as untrustworthy by researchers who disagree with the particular statistical analysis method used. We report a multiverse reanalysis of such a study, consisting of nine different statistical analyses. The conclusions are consistent with the previously reported findings, and are remarkably robust to the choice of statistical analysis.</p>
+
+<h2 id="keywords">Author Keywords</h2>
+<p id="keywords">Likert data; explorable explanation; multiverse analysis.</p>
+
+
+<!-- ACM articles are required to have the following sections which are hidden in the distill layout. -->
+
+<h2 id="acm">ACM Classification Keywords</h2>
+<p id="acm">H5.2 User Interfaces: Evaluation/Methodology</p>
+
+<h2 id="terms">General Terms</h2>
+<p id="terms">Human Factors; Design; Experimentation; Measurement.</p>
+
+
+<h2>Introduction</h2>
+
+<p>In 2014, Tal and Wansink <dt-cite key="tal2016blinded"></dt-cite> published a study entitled "Blinded with science: Trivial graphs and formulas increase ad persuasiveness and belief in product efficacy" in the journal Public Understanding
+of Science. The study shows that adding a chart to a statement about a new drug increases people's belief in the drug's efficacy. However, a 2016 replication by Dragicevic and Jansen <dt-cite key="dragicevic2018blinded"></dt-cite> suggests that the effect may not be as robust as claimed: in a series of four replications conducted on two crowdsourcing platforms, the chart appeared to be no more persuasive – and sometimes less persuasive – than text alone.</p>
+
+<p>However, these results are based on Likert-type responses, which are known to be tricky to analyze, as there is currently no consensus on how to best analyze this type of data. Tal and Wansink <dt-cite key="tal2016blinded"></dt-cite> used simple <i>t</i>-tests, while Dragicevic and Jansen <dt-cite key="dragicevic2018blinded"></dt-cite> used bootstrap confidence intervals in order to gain more robustness against possible departures from the normality assumption. However, there are many other ways the same data could have been analyzed. Here we report on nine different ways of analyzing the data. All these methods lead to the same conclusions, confirming that the findings are robust to the choice of statistical analysis.</p>
+
+<p>Our reporting approach which combines the principle of multiverse analysis <dt-cite key="steegen2016increasing"></dt-cite> with the idea of explorable explanation <dt-cite key="Victor2011"></dt-cite> can be used not only in reanalyses but also in original studies in order to make findings results more reliable and more convincing when there is a disagreement about the best statistical  analysis method.</p>
+
+<h2>Dataset and Questions</h2>
+
+<p>Dragicevic and Jansen's <dt-cite key="dragicevic2018blinded"></dt-cite> study has four experiments. In each experiment, each participant is either shown a text about a hypothetical drug ("no_graph" condition) or the same text with a chart ("graph" condition). The participant is then asked to assess to what extent the drug is effective, on a scale from 1 to 7. We focus on this data here. The study has another important dependent variable (error of the response to a comprehension question) but it is not Likert-type data and therefore not addressed here.</p>
+
+<figure class="l-body">
+<img id="bar-charts" src="R/analysis_files/figure-gfm/unnamed-chunk-2-1.png" width="100%" onmouseenter="imageMapResize()"/><figcaption>Distribution of the raw data. Each column is a different experiment (e1 to e4), while rows are the two conditions (graph and no_graph).<span label="distributions"></span></figcaption>
+</figure>
+
+<p>Figure 1 shows the distribution of the raw data. Our question is whether there is an overall difference between graph and no_graph, for each of the four experiments (e1 to e4). We answer this question using nine different statistical analyses, whose results are summarized in the next section.</p>
+
+<h2>Summary of Results</h2>
+
+<p>Seven of the nine methods provide us with a point estimate and a 95% interval estimate of the average difference between the two conditions, all summarized in Figure 2. The remaining two procedures provide estimates as a log-odds ratio, shown in Figure 3 (for beta regression, this is the log of the ratio of the odds of going from one extreme of the scale to the other between the two conditions; for ordinal regression, this is the log of the ratio of the odds of going from one category on the scale to any category above it between the two conditions; 0 indicates equal odds). On both figures, red intervals are statistically significant at the .05 level, while blue intervals are non-significant.</p>
+
+<p><b>Click on an analysis label to see its details in the next section</b>. The complete source code of all analyses is available at <a href="R/analysis.html">R/analysis.html</a>. </p>
+
+<figure class="l-page-outset double-column mapresize">
+<img id="bar-charts" src="R/analysis_files/figure-gfm/unnamed-chunk-20-1.png" width="100%" usemap="#estimatesmap" class="map" onmouseenter="imageMapResize()"/><figcaption>Point estimates and 95% intervals for the differences between the two conditions (no_graph minus graph). Each column is a different experiment (e1 to e4), while rows are different analysis methods. Negative values indicate the graph condition is more persuasive. Red intervals do not overlap 0 (statistically significant at the .05 level for frequentist methods); blue intervals overlap 0. Rows are ordered by the point estimate in experiment 4.<span label="estimates"></span></figcaption>
+<map name="estimatesmap">
+  <area shape="rect" coords="135,57,19,36" alt="ordinal reg (Bayes)" onclick="tangle.setValue('method', 6)">
+  <area shape="rect" coords="84,58,137,78" alt="robust" onclick="tangle.setValue('method', 7)">
+  <area shape="rect" coords="69,79,135,98" alt="truncated" onclick="tangle.setValue('method', 8)">
+  <area shape="rect" coords="32,97,134,120" alt="beta reg (Bayes)" onclick="tangle.setValue('method', 4)">
+  <area shape="rect" coords="90,120,136,142" alt="t-test" onclick="tangle.setValue('method', 0)">
+  <area shape="rect" coords="69,141,136,163" alt="bootstrap" onclick="tangle.setValue('method', 1)">
+  <area shape="rect" coords="73,164,136,185" alt="wilcoxon" onclick="tangle.setValue('method', 2)">
+</map>
+</figure>
+
+<figure class="l-page-outset double-column mapresize">
+<img id="bar-charts" src="R/analysis_files/figure-gfm/unnamed-chunk-21-1.png" width="100%" usemap="#logoddsmap" class="map"/><figcaption>Point estimates and 95% interval estimates for the log-odds ratios (graph minus no_graph). Negative values indicate the graph condition is more persuasive.<span label="logodds"></span></figcaption>
+<map name="logoddsmap">
+  <area shape="rect" coords="44,44,118,70" alt="beta regression" onclick="tangle.setValue('method', 3)">
+  <area shape="rect" coords="18,82,117,110" alt="ordinal reg" onclick="tangle.setValue('method', 5)">
+</map>
+</figure>
+
+
+<!-- The exact <i>p</i>-values for the remaining six procedures are reported next on a log scale:</p>
+
+<figure class="l-body double-column">
+<img id="bar-charts" src="R/analysis_files/figure-gfm/unnamed-chunk-23-1.png" width="100%"/><figcaption><i>p</i>-values for the differences between the two conditions (no_graph minus graph), on a log scale.<span label="pvalues"></span></figcaption>
+</figure>
+
+-->
+
+<h2>Analysis Details</h2>
+
+<!-- FIRST PARAGRAPH OF THE ANALYSIS: DESCRIPTION AND JUSTIFICATION OF THE METHOD -->
+
+<p>
+
+<span data-var="ttest" class="TKSwitch"><span></span><span>
+Tal and Wansink <dt-cite key="tal2016blinded"></dt-cite> used a <b>t-test</b> to analyze their own data. For this method, we compute the difference between the two means, its 95% <i>t</i>-based confidence interval for independent samples and the corresponding <i>p</i>-value for a null hypothesis of no effect.
+This method assumes normal sampling distributions, which is reasonable here given that the data is bell-shaped and sample sizes range between <i>N</i>=60 and <i>N</i>=90 per condition.
+</span></span>
+
+<span data-var="bootstrap" class="TKSwitch"><span></span><span>
+Dragicevic and Jansen <dt-cite key="dragicevic2018blinded"></dt-cite> analyzed their data using the <b>bootstrap</b> method. With this method, we compute the 95% BCa non-parametric bootstrap confidence interval for the difference between two means. Bootstrapping has been shown to work with a range of exotic data distributions but can give liberal interval estimates when the sample size is small <dt-cite key="kirby2013bootes"></dt-cite> (i.e., <i>N</i> ≤ 10, which is not the case here since sample sizes range between <i>N</i>=60 and <i>N</i>=90 per condition). This method does not provide a <i>p</i>-value.
+</span></span>
+
+<span data-var="wilcoxon" class="TKSwitch"><span></span><span>
+For the <b>wilcoxon</b> method, we use a Wilcoxon signed-rank test and compute the corresponding p-value for a null hypothesis of no effect.
+The Wilcoxon signed-rank test is a non-parametric method commonly recommended as an alternative to the <i>t</i>-test when there are reasons to doubt the normality assumption. The estimate (and its 95% CI) are for the median of the difference between samples (not the difference in the medians).
+</span></span>
+
+<span data-var="betaregression" class="TKSwitch"><span></span><span>
+For the <b>beta regression</b> method, we perform a maximum-likelihood regression with a beta-distributed dependent variable.
+This method has been recommended for analyzing scales with a lower and upper bound and is robust to skew and heteroscedasticity <dt-cite key="kirby2013bootes"></dt-cite>. We rescaled the data to be in (0, 1) by dividing all responses by 10. We report the log odds ratio between conditions: the log of the ratio of the odds of going from one extreme of the scale to the other.
+</span></span>
+
+<span data-var="betaregbayes" class="TKSwitch"><span></span><span>
+For the <b>beta reg (Bayes)</b> method, we use a Bayesian formulation of beta regression.
+This method has been recommended for analyzing scales with a lower and upper bound and is robust to skew and heteroscedasticity <dt-cite key="kirby2013bootes"></dt-cite>. We rescaled the data to be in (0, 1) by dividing all responses by 10. We fit a beta regression within each experiment, using weakly informative priors.
+We report estimates of marginal means on the original scale.
+</span></span>
+
+<span data-var="ordinalreg" class="TKSwitch"><span></span><span>
+For the <b>ordinal reg</b> method, we use an ordinal logistic regression <dt-cite key="mcelreath2018statistical"></dt-cite>.
+Ordinal models are often applied to Likert-type data. We report the log odds ratio between conditions: 
+the log of the ratio of the odds of going from one category on the scale to any category above it.
+</span></span>
+
+<span data-var="ordinalregbayes" class="TKSwitch"><span></span><span>
+For the <b>ordinal reg (Bayes)</b> method, we use a Bayesian ordinal logistic regression <dt-cite key="mcelreath2018statistical"></dt-cite>.
+Ordinal models are often applied to Likert-type data. We report estimates of marginal means on the original scale.
+</span></span>
+
+<span data-var="robust" class="TKSwitch"><span></span><span>
+For the <b>robust</b> method, we perform a robust, heteroskedastic linear regression: we use a Student <i>t</i> error distribution instead of Gaussian error distribution, and estimate a different variance parameter for each group.
+This is essentially Kruschke's <dt-cite key="kruschke2013bayesian"></dt-cite> BEST test (a Bayesian, robust, hetereoskedastic alternative to the <i>t</i>-test), but estimated using a frequentist procedure instead of a Bayesian one.
+</span></span>
+
+<span data-var="truncated" class="TKSwitch"><span></span><span>
+For the <b>truncated</b> method, we perform a truncated normal regression model. This model also accounts for hetereoskedasticity (non-constant variance) by estimating a different variance parameter for each condition.
+</span></span>
+
+</p>
+
+
+<!-- SECOND PARAGRAPH OF THE ANALYSIS: RESULTS -->
+
+
+<p>
+
+<span data-var="ttest" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% confidence interval are reported in Figure 2, for each of the four experiments (row labeled <b>ttest</b>).
+According to the t-tests, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph, <i>p</i>=.00013).
+</span></span>
+
+<span data-var="bootstrap" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% confidence interval are reported in Figure 2, for each of the four experiments (row labeled <b>bootstrap</b>).
+According to the bootstrap procedure, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph).
+</span></span>
+
+<span data-var="wilcoxon" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% confidence interval are reported in Figure 2, for each of the four experiments (row labeled <b>wilcoxon</b>).
+According to the Wilcoxon tests, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph, <i>p</i>=.00040).
+</span></span>
+
+<span data-var="betaregression" class="TKSwitch"><span></span><span>
+The log-odds ratio and its 95% confidence interval are reported in Figure 3, for each of the four experiments (first row).
+According to the beta regressions, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph, <i>p</i>=.00017).
+</span></span>
+
+<span data-var="betaregbayes" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% posterior quantile interval are reported in Figure 2, for each of the four experiments (row labeled <b>beta reg (Bayes)</b>).
+According to the beta regressions, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph).
+</span></span>
+
+<span data-var="ordinalreg" class="TKSwitch"><span></span><span>
+The log-odds ratio and its 95% confidence interval are reported in Figure 3, for each of the four experiments (second row).
+According to the ordinal regressions, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph, <i>p</i>=.00040).
+</span></span>
+
+<span data-var="ordinalregbayes" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% posterior quantile interval are reported in Figure 2, for each of the four experiments (row labeled <b>ordinal reg (Bayes)</b>).
+According to the ordinal regressions, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph).
+</span></span>
+
+<span data-var="robust" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% confidence interval are reported in Figure 2, for each of the four experiments (row labeled <b>robust</b>).
+According to the robust linear regressions, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph, <i>p</i>=.00016).
+</span></span>
+
+<span data-var="truncated" class="TKSwitch"><span></span><span>
+The point estimate of the mean difference and its 95% confidence interval are reported in Figure 2, for each of the four experiments (row labeled <b>truncated</b>).
+According to the truncated normal regressions, there is no evidence for a difference on average between graph and no_graph, except for experiment 4, for which there is strong evidence for an effect in the opposite direction (no_graph more persuasive than graph, <i>p</i>=.00037).
+</span></span>
+
+</p>
+
+<p>For information on any of the other eight statistical analyses we conducted, click on its label on Figure 2 or Figure 3.</p> 
+
+<h2>Discussion</h2>
+
+<p>However we analyze the data, the substantive conclusions are about the same. While the Wilcoxon estimates and intervals in Figure 1 look different from the other estimates, it is estimating a slightly different quantity: a median of the differences instead of a difference in means (as the other approaches in Figure 2 are). In Figure 3, while the two rows are both on the log odds scale, they are measuring log odds ratios of different things, so it is hard to compare the values directly. Since the ordinal regression measures the log odds ratio of an increase from one category to any category above it, we should expect this value to be larger than the estimate from the beta regression, which measures the log odds ratio of going from one extreme of the scale to the other (a less likely event). With smaller sample sizes, it is likely that the results would have differed more.</p>
+
+<p>From this multiverse analysis, we can conclude that our results are very robust, and not strongly sensitive to the choice of analysis method: if the conclusions of Dragicevic and Jansen <dt-cite key="dragicevic2018blinded"></dt-cite> were to be wrong, it is very unlikely that the cause would be in the choice of statistical analysis.</p>
+
+<p>Our reporting approach, which combines the principle of multiverse analysis <dt-cite key="steegen2016increasing"></dt-cite> with the idea of explorable explanation <dt-cite key="Victor2011"></dt-cite>, can be used not only in reanalyses but also in original studies in order to make statistical results more convincing when there is no consensus as to what method is best to analyze such data.</p>
+
+</dt-article>
+
+<dt-appendix>
+</dt-appendix>
+
+<script type="text/bibliography">
+@article{dragicevic2018blinded,
+  title={Blinded with Science or Informed by Charts? A Replication Study},
+  author={Dragicevic, Pierre and Jansen, Yvonne},
+  journal={IEEE transactions on visualization and computer graphics},
+  volume={24},
+  number={1},
+  pages={781--790},
+  year={2018}
+}
+@article{tal2016blinded,
+  title={Blinded with science: Trivial graphs and formulas increase ad persuasiveness and belief in product efficacy},
+  author={Tal, Aner and Wansink, Brian},
+  journal={Public Understanding of Science},
+  volume={25},
+  number={1},
+  pages={117--125},
+  year={2016},
+  publisher={SAGE Publications Sage UK: London, England}
+}
+@article{kirby2013bootes,
+  title={BootES: An R package for bootstrap confidence intervals on effect sizes},
+  author={Kirby, Kris N and Gerlanc, Daniel},
+  journal={Behavior research methods},
+  volume={45},
+  number={4},
+  pages={905--927},
+  year={2013},
+  publisher={Springer}
+}
+@article{smithson2006better,
+  title={A better lemon squeezer? Maximum-likelihood regression with beta-distributed dependent variables.},
+  author={Smithson, Michael and Verkuilen, Jay},
+  journal={Psychological methods},
+  volume={11},
+  number={1},
+  pages={54},
+  year={2006},
+  publisher={American Psychological Association}
+}
+@article{kruschke2013bayesian,
+  title={Bayesian estimation supersedes the t test.},
+  author={Kruschke, John K},
+  journal={Journal of Experimental Psychology: General},
+  volume={142},
+  number={2},
+  pages={573},
+  year={2013},
+  publisher={American Psychological Association}
+}
+@book{mcelreath2018statistical,
+  title={Statistical Rethinking: A Bayesian Course with Examples in R and Stan},
+  author={McElreath, Richard},
+  year={2018},
+  publisher={CRC Press}
+}
+@article{steegen2016increasing,
+  title={Increasing transparency through a multiverse analysis},
+  author={Steegen, Sara and Tuerlinckx, Francis and Gelman, Andrew and Vanpaemel, Wolf},
+  journal={Perspectives on Psychological Science},
+  volume={11},
+  number={5},
+  pages={702--712},
+  year={2016},
+  publisher={Sage Publications Sage CA: Los Angeles, CA}
+}
+@ARTICLE{Victor2011,
+  title   = {Explorable explanations},
+  author  = "Victor, Bret",
+  journal = "Bret Victor",
+  volume  =  10,
+  year    =  {2011}
+}
+
+</script>
+
+<!-- have image maps resize with images -->
+<script type="text/javascript">
+  imageMapResize();
+  function doit() {
+    imageMapResize();
+    setTimeout(function() { imageMapResize; }, 2000);
+  }
+  $(document).on("layoutChanged", doit);
+ </script>
+</body>

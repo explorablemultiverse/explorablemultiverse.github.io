@@ -1,0 +1,356 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <script type="text/javascript" src="https://distill.pub/template.v1.js"></script>
+  <script type="text/javascript" src="../commons/scripts/Tangle.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/mootools.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/sprintf.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/BVTouchable.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/TangleKit.js"></script>
+  <script src="../commons/scripts/interactive_paper.js"></script>
+
+  <link rel="stylesheet" href="../commons/css/pubcss-acm-sigchi.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style-shared.css" media="screen" />
+  <!-- TangleKit (optional) -->
+  <link rel="stylesheet" href="../commons/scripts/TangleKit/TangleKit.css" type="text/css">
+
+
+
+  <!-- -------------------------------------------------------------------------------------- -->
+  <!-- Tangle code here -->
+  <!-- -------------------------------------------------------------------------------------- -->
+  <script type="text/javascript">
+
+    var tangle = null;
+
+    function setUpTangle () {
+
+      // tip: use as tangle root whatever element is an ancestor of all tangle elements.
+      var tangleRoot = document.getElementById("tangleRoot");
+
+      tangle = new Tangle(tangleRoot, {
+        initialize: function () {
+
+          // Default statistical analysis options.
+
+          this.bootstrap = 0;
+          this.dataset = 1;
+
+        },
+        randomize: function () {
+
+          // Set options to a random value. Used for animating the multiverse. Make sure
+          // all values are legal and accessible through the Tangle UI controls.
+
+          // force bootstrap plots in this mode.
+          this.bootstrap = 1;
+          this.dataset = rnd_int(1,100);
+ 
+        },
+        update: function () {
+
+          // Update your derived variables and your figures here.
+
+          var file_suffix = this.bootstrap == 0 ? ".jpg" : "-" + this.dataset + ".jpg";
+          var fig1_4 = "figures/Figure_4" + file_suffix;
+          var fig2_5 = "figures/Figure_5" + file_suffix;
+          var fig3_6 = "figures/Figure_6" + file_suffix;
+          var fig4_7 = "figures/Figure_7" + file_suffix;
+
+          document.getElementById('Fig1_4').src = fig1_4;
+          document.getElementById('Fig2_5').src = fig2_5;
+          document.getElementById('Fig3_6').src = fig3_6;
+          document.getElementById('Fig4_7').src = fig4_7;
+
+       }
+      });
+    }
+  </script>
+  <!-- -------------------------------------------------------------------------------------- -->
+
+
+  <!-- CSS code taken from pubcss that adds figure numbering also for the distill layout. -->
+  <style>
+  a[href^="#"].figure {
+    content: target-counter(attr(href, url), figure); }
+    a[href^="#"].figure::before {
+      content: "Figure "; }
+    a[href^="#"].figure::after {
+      content: ''; }
+    figure {
+        counter-increment: figure;
+    }
+
+    figcaption::before {
+          content: "Figure " counter(figure) ". ";
+    }
+
+</style>
+</head>
+
+<body id="tangleRoot" onload="setTimeout(function(){ afterImagePreload(); }, 1000);">
+
+<div id="loading" class="cover"><div class="cover-text">Loading...</div></div>
+<noscript class="cover"><div class="cover-text">This website requires <strong>javascript</strong> to display its content correctly. Please activate javascript and reload the page.</div></noscript>
+
+
+
+<!-- -------------------------------------------------------------------------------------- -->
+<!-- Start editing from here -->
+<!-- -------------------------------------------------------------------------------------- -->
+
+
+<!-- The front matter script below is required in exactly the shown format, i.e., don't remove the colons. -->
+<script type="text/front-matter">
+  title: "Adding Inferential Information to Plots using Resampling and Animations"
+  description: ""
+  authors:
+  - Anonymous Author: http://www.anonymous.org
+  affiliations:
+  - Anonymous Affiliation: http://www.anonymous.org
+</script>
+
+<dt-article>
+  <header class="col-span">
+    <!-- Due to different front matter procedures, we need to enter title and author information twice. -->
+    <h1 class="title">Adding Inferential Information to Plots<br/>using Resampling and Animations</h1>
+            <div class="authors col-1">
+              <div class="author">
+                  <br/>
+                  <div><b>Anonymous Author</b></div>
+                  <div>Anonymous Affiliation</div>
+                  <div>anonymous@email.org</div>
+                  <br/>
+              </div>
+          </div>
+</header>
+<dt-byline></dt-byline>
+
+<h2 id="Abstract">Abstract</h2>
+
+<p>We present a method for adding inferential information to arbitrary statistical plots based on resampling and animation. A large number of bootstrap datasets are created and subjected to the same analyses and plotting procedures than the original dataset. These "bootstrap plots" are then animated to reveal the statistical noise that was hidden in the original plot, in order to help readers appreciate the uncertainty in the quantities, trends and patterns conveyed by the plot. We illustrate this approach with a real study taken from the information visualization literature.</p>
+
+<h2 id="keywords">Author Keywords</h2>
+<p id="keywords">Multiverse analysis; statistical dance.</p>
+
+
+<!-- ACM articles are required to have the following sections which are hidden in the distill layout. -->
+
+<h2 id="acm">ACM Classification Keywords</h2>
+<p id="acm">H5.2 User Interfaces: Evaluation/Methodology</p>
+
+<h2 id="terms">General Terms</h2>
+<p id="terms">Human Factors; Design; Experimentation; Measurement.</p>
+
+
+
+<h2>Introduction</h2>
+
+<p>It is well known that results from statistical analyses should always be presented with inferential information in order to prevent misinterpretation. This is the case not only for numbers but also for plots. For example, point estimates should always be presented together with a graphical indication of their uncertainty, such as error bars for interval estimates <dt-cite key="cumming2014new"></dt-cite> or density plots for posterior distributions <dt-cite key="kruschke2010bayesian"></dt-cite>. However, it can be challenging to present inferential information when a plot is very dense or when it involves visual representations for which there is no known method for conveying inferential information. For example, when showing a ranking of different conditions, it is not clear at all how can inferential information be conveyed. Yet, without inferential information uncertainty remains hidden. Here we suggest a general solution based on resampling and animation. We illustrate it by reproducing the figures from a study by Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite>.</p>
+
+<h2>Background</h2>
+
+<h3>Statistical dances</h3>
+
+<p>The term <i>statistical dance</i> has been used to refer to a plot or an animation that shows the outcomes of multiple simulated replications of the same hypothetical experiment <dt-cite key="dragicevic2017dances"></dt-cite>. This term originates from Geoff Cumming's "dance of <i>p</i>-values", a simple simulation that was meant to show how widely <i>p</i>-values vary across replications <dt-cite key="cumming2009dance"></dt-cite>. The simulation consisted in repeatedly drawing a sample from two normal distributions and computing the <i>p</i>-value for the difference in means. A dance of 95% confidence intervals was also shown. This idea was later applied to Bayes factors <dt-cite key="lakens2016dance"></dt-cite> and to a range of other statistics <dt-cite key="dragicevic2017dances"></dt-cite>. Here we show that the idea can be applied not only to simulations where the population is known, but also to <i>existing datasets</i> where the population is unknown. This is possible thanks to resampling methods.</p>
+
+<h3>Resampling</h3>
+
+<p><i>Resampling</i> refers to a family of statistical methods where a range of alternative datasets are constructed from a real dataset in order to answer statistical questions. A common approach, called <i>nonparametric bootstrapping</i>, consists of constructing many alternative samples (called <i>bootstrap samples</i>) by randomly drawing same-size samples with replacement <dt-cite key="wood2005bootstrapped,kirby2013bootes"></dt-cite>. The distribution of a statistic (e.g, the sample mean) computed on a large set of bootstrap samples is called the statistic's <i>bootstrap distribution</i>. In many cases, the bootstrap distribution provides a good approximation of the sampling distribution <dt-cite key="efron1979bootstrap"></dt-cite>, making it possible to derive approximate confidence intervals without parametric assumptions <dt-cite key="kirby2013bootes"></dt-cite>.</p>
+
+<p>Here we use bootstrapping not for deriving confidence intervals, but for constructing a set of alternative datasets based on an original (real) dataset. Each dataset is subjected to the same analysis and plotting procedure, yielding a set of <i>bootstrap plots</i>. Once animated, the bootstrap plots become a statistical dance that can convey useful information on the reliability of the different quantities, trends and patterns depicted by the plot. In the next section we illustrate this with concrete examples.</p>
+
+<p>We are far from being the first to use sequential animations to communicate probability distributions and uncertainty. For example, hypothetical outcome plots (HOPs) <dt-cite key="hullman2015hypothetical"></dt-cite> also convey probability distributions by animating random drawings. But unlike HOPs, statistical dances like ours focus on showing the outcomes of hypothetical experiment replications, and they use entire plots as hypothetical outcomes instead of single numerical values. </p>
+
+<h2>Example</h2>
+
+<p>We chose the study by Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite> because the data and analysis scripts are publicly available, and because the article contains an interesting assortment of plots, including a ranking plot. We first briefly summarize the study.</p>
+
+<h3>Harrison et al.'s Study</h3>
+
+<p>The goal of the study was to rank nine existing visualizations in their ability to effectively convey correlations. We focus on experiment 2, which was the main experiment and for which data and analysis code are available. In that experiment, nine visualizations were evaluated on 1,600+ crowdsourcing workers on their ability to convey correlation. The staircase method was used to derive just-noticeable difference (JND) values, which capture discrimination capacity: the lower the value, the better the participant can discriminate between correlations.</p>
+
+<p>The experiment involved four independent variables: the visualization type (9 levels), the base correlation value (6 levels), whether the correlation was positive or negative (2 levels), and whether the value was approached from above or from below (2 levels). Each participant carried out 4 tasks, each with a specific combination of conditions.</p>
+
+<h3>Bootstrapping the dataset</h3>
+
+<p>The experimental dataset and analysis scripts from Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite> are available at <a href="https://github.com/TuftsVALT/ranking-correlation">github.com/TuftsVALT/ranking-correlation</a>. The dependent variable is JND. Again, each participant contributed four JND values, corresponding to four different combinations of conditions. The dataset has data from 1693 participants, and thus a total of 1693×4 = 6772 JND values. Since the experiment involves 9×6×2×2 = 216 unique conditions, each unique condition was tested multiple times, on different participants (31.4 times on average, min=21, max=41). We generate a bootstrap dataset by independently bootstrapping (resampling with replacement) each of these 216 subsamples. We ignored participant ID since it is not used in any of the models in the reported analysis (we verified that shuffling the participant ID column led to the exact same plots). The bootstrap dataset is then saved in a csv file and fed to the same analysis scripts, producing a new set of plots. This procedure was repeated 100 times.</p>
+
+<h3>Results</h3>
+
+<p>All the plots in this section are:</p>
+
+<ul data-var="bootstrap" class="TKList">
+    <li>Plots computed from the original dataset</span>, as initially reported by Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite>.</li>
+    <li>Plots computed from the bootstrap dataset #<span data-var="dataset" class="TKAdjustableNumber" data-min="1" data-max="100" data-step="1"></span>. Press and hold the <i>Animate multiverse</i> button on top or the <i>"A"</i> key to animate.</li>
+</ul>
+
+<p>We report the plots in the same order as in the original article. Figure 1 (Figure 4 in the original paper) shows the mean JND for each of the 216 conditions, each displayed as a dot. Here inferential information is already conveyed by the way of error bars, so the dance is somewhat redundant. However, showing the dance still has educational value, as researchers tend to grossly overestimate the reliability and the replicability of inferential statistics such as <i>p</i>-values <dt-cite key="cumming2009dance"></dt-cite> and confidence intervals <dt-cite key="dragicevic2017dances"></dt-cite>. One might notice that the error bars are jumping more wildly than in a regular dance of 95% confidence intervals <dt-cite key="cumming2009dance,dragicevic2017dances"></dt-cite>. This is because the error bars are standard errors, which are approximately twice as short as 95% CIs. Although in the original article this was clearly stated in the Figure caption, the dance might make it less likely for the reader to miss this important information.</p>
+
+<figure class="l-body">
+<img id="Fig1_4" src="figures/Figure_4.jpg" width="100%" style="min-height: 426px" /><figcaption>JND as a function of correlation r for both above (light points) and below (dark points) approaches.<span label="Fig1_4"></span></figcaption>
+</figure>
+
+<p>Figure 1 provides lots of details about the data but is also somehow overwhelming. Thus it was only used for <i>i)</i> informally confirming the approximately linear relationship between R and JND; and <i>ii)</i> showing that both visualization and correlation sign can have a strong effect on overall performance (e.g., compare stackedbar positive vs. stackedbar negative); <i>iii)</i> showing that some visualization × sign conditions often perform below chance level (JND > 0.45 -- these conditions are removed from the rest of the analysis). These informal observations appear to hold reasonably well across bootstrap datasets.</p>
+
+<p>Figure 2 (Figure 5 in the original paper) shows linear regression results for several pairs of visualization techniques. The lower a line the better the performance. Some differences are large and extremely consistent across bootstrap datasets: for example, the inferiority of <i>line-positive</i> over the two other conditions on the first plot, or the inferiority of <i>parallel-coordinates-positive</i> on the last plot. Other differences are less clear but actually hold in a vast majority of bootstrap datasets: for example, the overall superiority of <i>radar-positive</i> in the second plot and of <i>stackedbar-negative</i> in the third plot. In contrast, many other comparisons are inconclusive. All these informal inferences agree with formal null hypothesis significance tests reported in the original paper. Although formal tests inspire more confidence to many readers, interpreting them together with effect size figures requires constant back and forth between figures and <i>p</i>-values provided in the text or in a table. Doing so is often quite tedious and can easily cause impatient readers to give up and be content with a superficial examination of the results.</p>
+
+<figure class="double-column l-screen-inset">
+<img id="Fig2_5" src="figures/Figure_5.jpg" width="100%" style="min-height: 146px" /><figcaption>Regression results for several paired comparisons of interest.<br/><br/><span label="Fig2_5"></span></figcaption>
+</figure>
+
+<p>It is possible — and common practice — to display a 95% confidence interval around a regression line by plotting a confidence limit curve on each side of the line. Such visual representations can greatly facilitate inference but can also easily produce cluttered plots. Although it may have been possible to add 95% confidence intervals to Figure 2, doing so with Figure 3 would have likely rendered it illegible.</p>
+
+<p>Figure 3 (Figure 6 in the original paper) shows the regression lines for all conditions, as well as the results from a previous similar experiment <dt-cite key="rensink2010perception"></dt-cite>. The figure is consistent with the paper's main findings: "<i>using scatterplots to depict correlation results in better performance overall. However, this performance difference only occurs when depicting positively correlated data. In fact, parallel coordinates depicting negatively correlated data appear to perform as well as scatterplots"</i> <dt-cite key="harrison2014ranking"></dt-cite>. The statistical dance gives credence to these conclusions, while at the same time providing a faithful illustration of the uncertainty behind the estimates. The reader is free to linger on the figure and go beyond the authors's own summary of findings by examining other comparisons and drawing their own conclusions. All necessary information on effect sizes and inferential statistics is seamlessly combined into this single animated figure, and it would take pages and pages of text to fully describe it.</p>
+
+<figure class="l-body">
+<img id="Fig3_6" src="figures/Figure_6.jpg" width="100%" style="min-height: 320px" /><figcaption>Regression results from Experiment 2 and from 
+<dt-cite key="rensink2010perception"></dt-cite>.<span label="Fig3_6"></span></figcaption>
+</figure>
+
+<p>Figure 4 (Figure 7 in the original paper) shows the ranking of visualizations depending on whether they are used to convey negative (-neg suffix) or positive (-pos suffix) correlations. A ranking is provided for different correlation values (r), and overall (right column). Here animation becomes crucial because this chart provides an easy-to-process summary of the paper's results, thus many readers may feel they can skip the gory details and get their take-home message from this chart only. However, as a still figure, the chart does not include inferential information and thus does not convey uncertainty.</p>
+
+<p>The statistical dance of Figure 4 reveals an intermixing of reliable trends and statistical noise. A reliable trend, for example, is that parallel coordinates applied to negative correlations (<i>pcp-neg</i>) loses some its advantages as correlations approach -1. Looking at the overall ranking in the right column, one can also be very confident that <i>line</i> is the worst technique for positive correlations, followed by <i>radar</i> and then by <i>pcp</i>. As for the top of the list, the <i>scatterplot</i> is clearly better at conveying positive correlations than negative correlations, but it is likely that <i>pcp</i> beats the <i>scatterplot</i> at negative correlations. Around the middle of the ranking there is a lot of noise, so it is probably hard to come up with a reliable absolute ranking.</p>
+
+<p>It is useful to ask what changes to Figure 4 would have made the chart less "jumpy". One option could have been to show partial orderings with ties rather than total orderings. Alternatively, one may focus on showing relative performances on a continuous scale rather than discrete rankings. In fact, it has been suggested that statistical charts should ideally be designed to be smooth functions of the data because this makes them more robust to sampling variability <dt-cite key="dragicevic2016fair,dragicevic2017dances"></dt-cite>. Thus, statistical dances are useful not only because they can reveal uncertainty to readers, but also because they can reveal uncertainty to authors and encourage them to design charts that are as stable -- and hence as trustworthy -- as possible.</p>
+
+<figure class="double-column l-middle">
+<img id="Fig4_7" src="figures/Figure_7.jpg" width="75%" style="min-height: 216px" /><figcaption>Perceptually-driven ranking of visualizations depending on the correlation sign (-neg / -pos),<br>as a function of correlation value (r) and overall (right column).<span label="Fig4_7"></span></figcaption>
+</figure>
+
+<h2>Discussion and Conclusion</h2>
+
+<p>It is important to understand that the statistical dances shown here are not <i>exact</i> in that they do not show an accurate sequence of replications as in simulation-based dances <dt-cite key="cumming2009dance,lakens2016dance,dragicevic2017dances"></dt-cite>. If the dances were exact, then we would be able to derive exact population parameters by aggregating all simulated replications, which is of course impossible. Creating an exact dance requires knowledge of the true sampling distributions, and thus knowledge of the real population parameters (or model). Instead, the dances shown here are <i>best guesses</i> of what real replications would look like if the same experiment was to be replicated over and over again. These best guesses rely on the properties of bootstrapping, a simple but well-established and powerful statistical inference tool.</p><p>Though they are only approximations, animated bootstrap plots convey useful inferential information that allows readers to appreciate to what extent different values, trends and patterns shown in the plots are robust and reliable. Dances can act as substitutes for static displays of inferential information when these cannot be easily visualized. They can also usefully complement inferential plots by dispelling the common misconception that a perfectly-executed inferential analysis is fully reliable and will give the same or similar results if the experiment is to be replicated <dt-cite key="dragicevic2017dances"></dt-cite>. Though the approach is general and can be applied to virtually any plot, the dataset bootstrapping procedure requires a case-by-case treatement as it depends on the structure of the dataset and on the performed analyses. Not all datasets may be bootstrappable.</p>
+
+<p>We focused on using sequential animations, a common approach for communicating uncertainty. Statistical dances can also be represented in a static manner by stacking all outcomes (see, e.g., Figure 7 in <dt-cite key="dragicevic2016fair"></dt-cite>). However, this approach may not generalize well to complex 2D plots. Another alternative could be to compose multiple plots using alpha-blending or overplotting.</p>
+</dt-article>
+
+<dt-appendix>
+</dt-appendix>
+
+<script type="text/bibliography">
+ @article{cumming2014new,
+  title={The new statistics: Why and how},
+  author={Cumming, Geoff},
+  journal={Psychological science},
+  volume={25},
+  number={1},
+  pages={7--29},
+  year={2014},
+  publisher={Sage Publications Sage CA: Los Angeles, CA}
+}
+
+@article{kruschke2010bayesian,
+  title={Bayesian data analysis},
+  author={Kruschke, John K},
+  journal={Wiley Interdisciplinary Reviews: Cognitive Science},
+  volume={1},
+  number={5},
+  pages={658--676},
+  year={2010},
+  publisher={Wiley Online Library}
+}
+
+@article{harrison2014ranking,
+  title={Ranking Visualizations of Correlation Using Weber's Law.},
+  author={Harrison, Lane and Yang, Fumeng and Franconeri, Steven and Chang, Remco},
+  journal={IEEE Trans. Vis. Comput. Graph.},
+  volume={20},
+  number={12},
+  pages={1943--1952},
+  year={2014}
+}
+
+@article{kirby2013bootes,
+  title={BootES: An R package for bootstrap confidence intervals on effect sizes},
+  author={Kirby, Kris N and Gerlanc, Daniel},
+  journal={Behavior research methods},
+  volume={45},
+  number={4},
+  pages={905--927},
+  year={2013},
+  publisher={Springer}
+}
+
+@article{wood2005bootstrapped,
+  title={Bootstrapped confidence intervals as an approach to statistical inference},
+  author={Wood, Michael},
+  journal={Organizational Research Methods},
+  volume={8},
+  number={4},
+  pages={454--470},
+  year={2005},
+  publisher={Sage Publications Sage CA: Thousand Oaks, CA}
+}
+
+@article{efron1979bootstrap,
+  title={Bootstrap Methods: Another Look at the Jackknife},
+  author={Efron, B and others},
+  journal={The Annals of Statistics},
+  volume={7},
+  number={1},
+  pages={1--26},
+  year={1979},
+  publisher={Institute of Mathematical Statistics}
+}
+
+@misc{dragicevic2017dances,
+  title={Statistical Dances: Why no Statistical Analysis is Reliable and What to do About it (video)},
+  author={Dragicevic, Pierre},
+  journal={S{\'e}minaire recherche reproductible, GRICAD, Grenoble.(2017)},
+  url={https://www.youtube.com/watch?v=UKX9iN0p5_A},
+  year={2017}
+}
+
+@misc{cumming2009dance,
+  title={The dance of p-values (video)},
+  author={Cumming, Geoff},
+  url={https://www.youtube.com/watch?v=ez4DgdurRPg},
+  year={2009}
+}
+
+@misc{lakens2016dance,
+  title={Dance of the Bayes factors},
+  author={Lakens, Daniel},
+  url={http://daniellakens.blogspot.com/2016/07/dance-of-bayes-factors.html},
+  year={2016}
+}
+
+@article{hullman2015hypothetical,
+  title={Hypothetical outcome plots outperform error bars and violin plots for inferences about reliability of variable ordering},
+  author={Hullman, Jessica and Resnick, Paul and Adar, Eytan},
+  journal={PloS one},
+  volume={10},
+  number={11},
+  pages={e0142444},
+  year={2015},
+  publisher={Public Library of Science}
+}
+
+@incollection{dragicevic2016fair,
+  title={Fair statistical communication in HCI},
+  author={Dragicevic, Pierre},
+  booktitle={Modern Statistical Methods for HCI},
+  pages={291--330},
+  year={2016},
+  url={https://www.lri.fr/~dragice/fairstats-last.pdf},
+  publisher={Springer}
+}
+
+@inproceedings{rensink2010perception,
+  title={The perception of correlation in scatterplots},
+  author={Rensink, Ronald A and Baldridge, Gideon},
+  booktitle={Computer Graphics Forum},
+  volume={29},
+  number={3},
+  pages={1203--1210},
+  year={2010},
+  organization={Wiley Online Library}
+}
+
+</script>
+
+</body>

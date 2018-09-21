@@ -1,0 +1,319 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <script type="text/javascript" src="https://distill.pub/template.v1.js"></script>
+  <script type="text/javascript" src="../commons/scripts/Tangle.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/mootools.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/sprintf.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/BVTouchable.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/TangleKit.js"></script>
+  <script src="../commons/scripts/interactive_paper.js"></script>
+  <link rel="stylesheet" href="../commons/css/pubcss-acm-sigchi.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style-shared.css" media="screen" />
+  <!-- TangleKit (optional) -->
+  <link rel="stylesheet" href="../commons/scripts/TangleKit/TangleKit.css" type="text/css">
+
+
+
+  <script type="text/javascript">
+
+  var tangle = null;
+
+  function setUpTangle () {
+
+      // tip: use as tangle root whatever element is an ancestor of all tangle elements.
+      var tangleRoot = document.getElementById("tangleRoot");
+
+      tangle = new Tangle(tangleRoot, {
+          initialize: function () {
+              // default analysis options, using Steegel's notation from Table 1
+              this.F = 0;
+              this.NMO = 0;
+              this.R = 0;
+              this.ECL = 0;
+              this.EC = 0;
+              this.fig1file = "no file."
+          },
+          randomize: function() {
+              // Set options to a random value. Used for animating the multiverse. Make sure
+              // all values are legal and accessible through the Tangle UI controls.
+
+              this.F = rnd_int(0, 4); 
+              this.NMO = rnd_int(0, 1); 
+              this.R = rnd_int(0, 2); 
+              this.ECL = rnd_int(0, 2); 
+              this.EC = rnd_int(0, 1); 
+          },
+          update: function () {
+              // update the figure
+              this.fig1file = "R/figures/fig-1-" + (this.NMO+1) + "-" + (this.F+1) + "-" + (this.R+1) + "-" + (this.ECL+1) + "-" + (this.EC+1) + ".jpg";
+              document.getElementById('fig1').src = this.fig1file;
+          }
+      });
+  }
+
+</script>
+
+
+
+
+  <!-- CSS code taken from pubcss that adds figure numbering also for the distill layout. -->
+  <style>
+  a[href^="#"].figure {
+    content: target-counter(attr(href, url), figure); }
+    a[href^="#"].figure::before {
+      content: "Figure "; }
+    a[href^="#"].figure::after {
+      content: ''; }
+    figure {
+        counter-increment: figure;
+    }
+
+    figcaption::before {
+          content: "Figure " counter(figure) ". ";
+    }
+
+</style>
+</head>
+
+<body id="tangleRoot" onload="setTimeout(function(){ afterImagePreload(); }, 1000);">
+
+<div id="loading" class="cover"><div class="cover-text">Loading...</div></div>
+<noscript class="cover"><div class="cover-text">This website requires <strong>javascript</strong> to display its content correctly. Please activate javascript and reload the page.</div></noscript>
+
+<!-- -------------------------------------------------------------------------------------- -->
+<!-- Start editing from here -->
+<!-- -------------------------------------------------------------------------------------- -->
+
+
+<!-- The front matter script below is required in exactly the shown format, i.e., don't remove the colons. -->
+<script type="text/front-matter">
+  title: "An Explorable Multiverse Analysis of Durante, Rae, and Griskevicius (2013)"
+  description: ""
+  authors:
+  - Anonymous Author: http://www.anonymous.org
+  affiliations:
+  - Anonymous affiliation: http://www.anonymous.org
+</script>
+
+<dt-article>
+  <header class="col-span">
+    <!-- Due to different front matter procedures, we need to enter title and author information twice. -->
+    <h1 class="title">An Explorable Multiverse Analysis of Durante et al. (2013)</h1>
+            <div class="authors col-1">
+              <div class="author">
+                  <br>
+                  <div><b>Anonymous Author</b></div>
+                  <div>Anonymous affiliation</div>
+                  <div>anonymous@email.org</div>
+                  <br>
+              </div>
+          </div>
+</header>
+<dt-byline></dt-byline>
+
+<h2 id="Abstract">Abstract</h2>
+
+<p>In this paper, we reproduce a small part of Steegen et al.'s multiverse analysis of Durante et al.'s study using explorable explanations. The data processing options can be selected interactively, which allows us to show the interaction plot reported in Durante et al. in addition to the p-value.</p>
+
+<h2 id="keywords">Author Keywords</h2>
+<p id="keywords">Multiverse analysis.</p>
+
+<!-- ACM articles are required to have the following sections which are hidden in the distill layout. -->
+
+<h2 id="acm">ACM Classification Keywords</h2>
+<p id="acm">H5.2 User Interfaces: Evaluation/Methodology</p>
+
+<h2 id="terms">General Terms</h2>
+<p id="terms">Human Factors; Design; Experimentation; Measurement.</p>
+
+<h2>Introduction</h2>
+
+  <p>Steegen and colleagues <dt-cite key="steegen2016increasing"></dt-cite> introduced the concept of <i>multiverse analysis</i>, which they illustrated by re-analyzing data from a 2013 paper by Durante and colleagues <dt-cite key="durante2013fluctuating"></dt-cite> entitled "The fluctuating female vote: Politics, religion, and the ovulatory cycle". Here, we report the initial part of the same multiverse analysis using an <i>explorable explanation</i> <dt-cite key="victor2011"></dt-cite> instead of p-value summaries. This article is meant to illustrate the use of explorable multiverse analysis at the data processing level.</p>
+
+<h2>Analysis</h2>
+
+  <p>The default analysis below reflects the choices made by Durante et al. <dt-cite key="durante2013fluctuating"></dt-cite>. Other options reflect alternatives considered by Steegen et al. <dt-cite key="steegen2016increasing"></dt-cite>. <b>Much of the text below is copied from Steegen et al.</b> <dt-cite key="steegen2016increasing"></dt-cite>, in order to give an idea of what their article could have looked liked had they used explorable explanations.</p>
+
+
+<h3>Fertility</h3>
+
+<p>The classification of women into a high or low fertility group based on cycle day can be done in several ways:
+<ul data-var="F" class="TKList">
+  <li>Participants with cycle days ranging from 7 to 14 are assigned to the high fertility group, whereas participants with cycle days ranging from 17 to 25 are assigned to the low fertility group <dt-cite key="durante2013fluctuating"></dt-cite>,</li>
+  <li>days 6–14 are used for high fertility, whereas days 17–27 are used for low fertility <dt-cite key="durante2010ovulation"></dt-cite>,</li>
+  <li>days 9–17 for high fertility and 18–25 for low fertility <dt-cite key="durante2012ovulation"></dt-cite>,</li>
+  <li>days 8–14 for high fertility and 1–7 and 15–28 for low fertility <dt-cite key="durante2014money"></dt-cite>, and</li>
+  <li>days 9–17 for high fertility and 1–8 and 18–28 for low fertility <dt-cite key="durante2014playing"></dt-cite>.</li>
+</ul>
+</p>
+
+<p>Second, there are different reasonable ways of estimating a woman's next menstrual onset, which is an intermediate step in determining cycle day.
+<span data-var="NMO" class="TKList">
+  <span>A woman's cycle day can be based on the number of days before next menstrual onset, which in turn is based on cycle length, which is computed as the difference between the start date of the woman’s last menstrual period and the start date of the woman's previous menstrual period <dt-cite key="durante2013fluctuating"></dt-cite></span>.
+  <span>Another way to estimate next menstrual onset is based on the women's reported estimate of their typical cycle length <dt-cite key="thornhill1999scent"></dt-cite>.</span>
+<!--  <span>Finally, another reasonable strategy for determining the onset of the next period involves using the self-reported expected start date of the next menstrual period <dt-cite key="haselton2006women"></dt-cite>.</span>-->
+</span>
+</p>
+
+<h3>Relationship status</h3>
+
+<p>There are at least three options for the dichotomization of women's relationship status into single or committed.
+  <span data-var="R" class="TKList">
+    <span>Women who selected response Option 1 or 2 on the relationship status item can be assigned to the group of single women, whereas women who selected response Option 3 or 4 can be assigned to the group of women in committed relationships.<dt-cite key="durante2013fluctuating"></dt-cite></span>
+    <span>Due to the ambiguous nature of response Option 2 (dating or involved with only one partner), women who select this response could reasonably be classified as being in committed relationships.</span>
+    <span>A third option involves discarding participants who select this ambiguous response option, and only classifying participants selecting Option 1 as single women, and participants selecting Option 3 or 4 as women in relationships.</span>
+  </span>
+</p>
+
+<h3>Exclusion criteria</h3>
+
+<p>The assignment of the participants to a high or low fertility group automatically excludes women whose cycle days are not in the high or low fertility range.
+  <span data-var="ECL" class="TKList">
+    <span>One option is not to exclude any participant beyond this exclusion <dt-cite key="durante2013fluctuating"></dt-cite>.</span>
+    <span>Alternatively, it is not unreasonable to exclude participants with irregular cycle lengths. This could amount to only including women with cycle lengths 25 to 35 <dt-cite key="durante2012ovulation"></dt-cite>. This exclusion criterion can be instantiated using a woman's computed cycle length.</span>
+    <span>Another reasonable way of instantiating this exclusion criterion is by using a woman's self-reported typical cycle length.</span>
+  </span>
+</p>
+
+<p>Another justifiable exclusion criterion concerns women's reported certainty ratings of the start dates of their last two menstrual periods.
+  <span data-var="EC" class="TKList">
+    <span>One option is not to exclude these participants <dt-cite key="durante2013fluctuating"></dt-cite>.</span>
+    <span>It is also reasonable to exclude participants who were not sufficiently confident about their report and to consider only data from participants with a certainty rating above the midpoint for both dates <dt-cite key="durante2014fertility"></dt-cite>.</span>
+  </span>
+</p>
+
+<h3>Results</h3>
+
+<figure class="l-middle side clearfix">
+    <img class="single" id="fig1" width="85%"/>
+    <figcaption>Results from Study 1: women's religiosity as a function of fertility
+and relationship status. Higher scores indicate greater religiosity.
+Error bars represent standard errors of the mean.</span>
+    </figcaption>
+</figure>
+
+<p>The interaction between relationship status and fertility in study 1 is shown in Figure 1. This plot reproduces Figure 1 from Durante et al.'s article <dt-cite key="durante2013fluctuating"></dt-cite> but with the y-axis starting at zero. This figure does not appear Steegen et al.'s multiverse analysis <dt-cite key="steegen2016increasing"></dt-cite>, as there would be 180 such figures to show, which would be impractical with a static paper. The p-value for the interaction is also shown on Figure 1.</p>
+
+<h2>Discussion</h2>
+
+<p>As in the original paper, we can see that "the multiverse analysis revealed that almost all choice combinations for data processing lead to large p values" <dt-cite key="steegen2016increasing"></dt-cite> and we can again conclude that "the effect of fertility on religion seems too sensitive to arbitrary choices and thus too fragile to be taken seriously" <dt-cite key="steegen2016increasing"></dt-cite>. Figure 1 can animated by holding the 'A' key, giving a striking demonstration of the variability of effect sizes across the multiverse that can usefully complement Steegen et al's histogram of p-values.</p>
+<!--
+<p>
+As expected, single women were slightly less religious (M = 4.9) than were women in relationships (M = 5.4). However, this finding was qualified by a significant Fertility × Relationship Status interaction, F(1, 159) = 6.46, p = .012 (see Fig. 1).
+</p>
+
+<p>
+Single women reported significantly less religiosity if they were in the high-fertility group (M = 4.32) than if they were in the low-fertility group (M = 5.62), F(1,159) = 3.88, p = .050, d = 0.45. Conversely, women in relationships reported more religiosity if they were in the high-fertility group (M = 5.95) than if they were in the low-fertility group (M = 4.88), F(1, 159) = 2.64, p = .10, d = 0.35. Descriptive information for each relationship category can be found in Dissecting the Findings for Each of the Four Relationship Categories in the Supplemental Material available online.
+</p>
+-->
+
+</dt-article>
+
+<dt-appendix>
+</dt-appendix>
+
+<script type="text/bibliography">
+@article{steegen2016increasing,
+  title={Increasing transparency through a multiverse analysis},
+  author={Steegen, Sara and Tuerlinckx, Francis and Gelman, Andrew and Vanpaemel, Wolf},
+  journal={Perspectives on Psychological Science},
+  volume={11},
+  number={5},
+  pages={702--712},
+  year={2016},
+  publisher={Sage Publications Sage CA: Los Angeles, CA}
+}
+@article{durante2013fluctuating,
+  title={The fluctuating female vote: Politics, religion, and the ovulatory cycle},
+  author={Durante, Kristina M and Rae, Ashley and Griskevicius, Vladas},
+  journal={Psychological Science},
+  volume={24},
+  number={6},
+  pages={1007--1016},
+  year={2013},
+  publisher={Sage Publications Sage CA: Los Angeles, CA}
+}
+@ARTICLE{victor2011,
+  title   = {Explorable explanations},
+  author  = "Victor, Bret",
+  journal = "Bret Victor",
+  volume  =  10,
+  year    =  {2011}
+}
+@article{durante2010ovulation,
+  title={Ovulation, female competition, and product choice: Hormonal influences on consumer behavior},
+  author={Durante, Kristina M and Griskevicius, Vladas and Hill, Sarah E and Perilloux, Carin and Li, Norman P},
+  journal={Journal of Consumer Research},
+  volume={37},
+  number={6},
+  pages={921--934},
+  year={2010},
+  publisher={University of Chicago Press Chicago, IL}
+}
+@article{durante2012ovulation,
+  title={Ovulation leads women to perceive sexy cads as good dads.},
+  author={Durante, Kristina M and Griskevicius, Vladas and Simpson, Jeffry A and Cantu, Stephanie M and Li, Norman P},
+  journal={Journal of Personality and Social Psychology},
+  volume={103},
+  number={2},
+  pages={292},
+  year={2012},
+  publisher={American Psychological Association}
+}
+@article{durante2014money,
+  title={Money, status, and the ovulatory cycle},
+  author={Durante, Kristina M and Griskevicius, Vladas and Cantu, Stephanie M and Simpson, Jeffry A},
+  journal={Journal of Marketing Research},
+  volume={51},
+  number={1},
+  pages={27--39},
+  year={2014},
+  publisher={American Marketing Association}
+}
+@article{durante2014playing,
+  title={Playing the field: The effect of fertility on women’s desire for variety},
+  author={Durante, Kristina M and Arsena, Ashley Rae},
+  journal={Journal of Consumer Research},
+  volume={41},
+  number={6},
+  pages={1372--1391},
+  year={2014},
+  publisher={University of Chicago Press Chicago, IL}
+}
+@article{thornhill1999scent,
+  title={The scent of symmetry: a human sex pheromone that signals fitness?},
+  author={Thornhill, Randy and Gangestad, Steven W},
+  journal={Evolution and human behavior},
+  volume={20},
+  number={3},
+  pages={175--201},
+  year={1999},
+  publisher={Elsevier}
+}
+@article{haselton2006women,
+  title={Women’s fertility across the cycle increases the short-term attractiveness of creative intelligence},
+  author={Haselton, Martie G and Miller, Geoffrey F},
+  journal={Human Nature},
+  volume={17},
+  number={1},
+  pages={50--73},
+  year={2006},
+  publisher={Springer}
+}
+@article{durante2014fertility,
+  title={Fertility can have different effects on single and nonsingle women: reply to Harris and Mickes (2014)},
+  author={Durante, Kristina M and Arsena, Ashley Rae and Griskevicius, Vladas},
+  journal={Psychological science},
+  volume={25},
+  number={5},
+  pages={1150--1152},
+  year={2014},
+  publisher={Sage Publications Sage CA: Los Angeles, CA}
+}
+</script>
+
+</body>

@@ -1,0 +1,313 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <script type="text/javascript" src="https://distill.pub/template.v1.js"></script>
+  <script type="text/javascript" src="../commons/scripts/Tangle.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/mootools.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/sprintf.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/BVTouchable.js"></script>
+  <script type="text/javascript" src="../commons/scripts/TangleKit/TangleKit.js"></script>
+  <script src="../commons/scripts/interactive_paper.js"></script>
+
+  <link rel="stylesheet" href="../commons/css/pubcss-acm-sigchi.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="../commons/css/style-shared.css" media="screen" />
+  <!-- TangleKit (optional) -->
+  <link rel="stylesheet" href="../commons/scripts/TangleKit/TangleKit.css" type="text/css">
+
+
+
+  <!-- -------------------------------------------------------------------------------------- -->
+  <!-- Tangle code here -->
+  <!-- -------------------------------------------------------------------------------------- -->
+  <script type="text/javascript">
+
+    var tangle = null;
+
+    function setUpTangle () {
+
+      // tip: use as tangle root whatever element is an ancestor of all tangle elements.
+      var tangleRoot = document.getElementById("tangleRoot");
+
+      tangle = new Tangle(tangleRoot, {
+        initialize: function () {
+
+          // Default statistical analysis options.
+
+          this.binarychoice = 0;
+          this.numericchoice1 = 10;
+          this.numericchoice2 = 1;
+          this.listchoice = 0;
+          this.logsodd = -10;
+        },
+        randomize: function () {
+
+          // Set options to a random value. Used for animating the multiverse. Make sure
+          // all values are legal and accessible through the Tangle UI controls.
+
+          this.binarychoice = rnd_int(0,1);
+          this.numericchoice1 = 2 * rnd_int(5,20);
+          this.numericchoice2 = rnd_list(-10, 1, 2, 4, 8, 16);
+          this.listchoice = rnd_int(0,2);
+          this.logsodd = rnd_int(-10, 10);
+        },
+        update: function () {
+
+          // Update your derived variables and your figures here.
+
+          this.numericchoice1_squared = this.numericchoice1*this.numericchoice1;
+          this.p = Math.exp(this.logsodd)/(1+Math.exp(this.logsodd));
+        }
+      });
+    }
+  </script>
+  <!-- -------------------------------------------------------------------------------------- -->
+
+
+  <!-- CSS code taken from pubcss that adds figure numbering also for the distill layout. -->
+  <style>
+  a[href^="#"].figure {
+    content: target-counter(attr(href, url), figure); }
+    a[href^="#"].figure::before {
+      content: "Figure "; }
+    a[href^="#"].figure::after {
+      content: ''; }
+    figure {
+        counter-increment: figure;
+    }
+
+    figcaption::before {
+          content: "Figure " counter(figure) ". ";
+    }
+
+</style>
+</head>
+
+<body id="tangleRoot" onload="setTimeout(function(){ afterImagePreload(); }, 1000);">
+
+<div id="loading" class="cover"><div class="cover-text">Loading...</div></div>
+<noscript class="cover"><div class="cover-text">This website requires <strong>javascript</strong> to display its content correctly. Please activate javascript and reload the page.</div></noscript>
+
+
+<!-- -------------------------------------------------------------------------------------- -->
+<!-- Start editing from here -->
+<!-- -------------------------------------------------------------------------------------- -->
+
+
+<!-- The front matter script below is required in exactly the shown format, i.e., don't remove the colons. -->
+<script type="text/front-matter">
+  title: "Template for Explorable Multiverse Analyses in Distill + PubCSS + Tangle"
+  description: "Description of the post"
+  authors:
+  - Chris Olah: http://colah.github.io
+  - Shan Carter: http://shancarter.com
+  affiliations:
+  - Google Brain: http://g.co/brain
+  - Google Brain: http://g.co/brain
+</script>
+
+<dt-article>
+  <header class="col-span">
+    <!-- Due to different front matter procedures, we need to enter title and author information twice. -->
+    <h1 class="title">Template for Explorable Multiverse Analyses in Distill + PubCSS + Tangle</h1>
+            <div class="authors col-2">
+              <div class="author">
+                  <div>Chris Olah</div>
+                  <div>Google Brain</div>
+                  <div>chris@olah.com</div>
+              </div>
+              <div class="author">
+                  <div>Shan Carter</div>
+                  <div>Google Brain</div>
+                  <div>shan@carter.com</div>
+              </div>
+          </div>
+</header>
+<dt-byline></dt-byline>
+
+<h2 id="Abstract">Abstract</h2>
+
+<p>The abstract goes here.</p>
+
+
+<h2 id="keywords">Author Keywords</h2>
+<p id="keywords">Explorable explanation; multiverse analysis.</p>
+
+
+<!-- ACM articles are required to have the following sections which are hidden in the distill layout. -->
+
+<h2 id="acm">ACM Classification Keywords</h2>
+<p id="acm">H5.2 User Interfaces: Evaluation/Methodology</p>
+
+<h2 id="terms">General Terms</h2>
+<p id="terms">Human Factors; Design; Experimentation; Measurement.</p>
+
+
+
+<h2>Introduction</h2>
+
+  <p>This is the first paragraph of the article.</p>
+  <p>We can also cite <dt-cite key="gregor2015draw"></dt-cite> external publications and use footnotes<dt-fn>This is a footnote.</dt-fn>.</p>
+  <h2>Code Blocks</h2>
+  <p>Syntax highlighting is provided within &lt;dt-code&gt; tags. An example of inline code snippets: <dt-code language="html">let x = 10;</dt-code>. For larger blocks of code, add a block attribute:
+
+<dt-code block language="javascript">
+  var x = 25;
+  function(x){
+    return x * x;
+  }
+</dt-code></p>
+
+<h2>Figures</h2>
+
+<p>Use the <dt-code>img</dt-code> tag to specify figure size in the ACM layout. For specifying figure size in the Distill layout, see next section.</p>
+
+<figure class="l-body">
+<img id="bar-charts" src="figures/barchart.png" width="90%"/><figcaption>A bar chart.<span label="bar-charts"></span></figcaption>
+</figure>
+
+
+
+
+<h2>Distill Layouts</h2>
+
+  <p>The main text column is referred to as the body. It is the assumed layout of any direct descendents of the <code>dt-article</code> element.</p>
+
+  <!-- The style addition below is only used to draw fake image bounderies in this example page. -->
+  <style>
+    .fake-img {
+      background: #bbb;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 12px;
+    }
+    .fake-img p {
+      font-family: monospace;
+      color: white;
+      text-align: left;
+      margin: 12px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+  </style>
+
+  <div class="fake-img l-body"><p>.l-body</p></div>
+  <p>For images you want to display a little larger, try these:</p>
+  <div class="fake-img l-middle"><p>.l-middle</p></div>
+  <div class="fake-img l-page"><p>.l-page</p></div>
+  <p>All of these have an <dt-code><code>outset</code></dt-code> variant if you want to poke out from the body text a little bit. For instance:</p>
+  <div class="fake-img l-body-outset"><p>.l-body-outset</p></div>
+  <div class="fake-img l-middle-outset"><p>.l-middle-outset</p></div>
+  <div class="fake-img l-page-outset"><p>.l-page-outset</p></div>
+  <p>Occasionally you’ll want to use the full browser width. For this, use <dt-code><code>.l-screen</code></dt-code>. You can also inset the element a little from the edge of the browser by using the inset variant.</p>
+  <div class="fake-img l-screen"><p>.l-screen</p></div>
+  <div class="fake-img l-screen-inset"><p>.l-screen-inset</p></div>
+  <p>Often you want to position smaller images so as not to completely interrupt the flow of your text. Or perhaps you want to put some text in the margin as an aside or to signal that it’s optional content. For these cases we’ll use the float-based layouts.</p>
+  <div class="fake-img l-body side"><p>.l-body.side</p></div>
+  <div class="fake-img l-middle side"><p>.l-middle.side</p></div>
+  <div class="fake-img l-page side"><p>.l-page.side</p></div>
+  <p>They are all floated to the right and anchored to the right-hand edge of the position you specify. By default, each will take up approximately half of the width of the standard layout position, but you can override the width with a more specific selector. </p>
+  <div class="fake-img l-gutter"><p>.l-gutter</p></div>
+  <p>The final layout is for marginalia, asides, and footnotes. It does not interrupt the normal flow of <code>.l-body</code> sized text except on mobile screen sizes.</p>
+  <p>You can also use an alternate centered layout by adding a <dt-code><code>centered</code></dt-code> class to the <dt-code><code>dt-article</code></dt-code> element.</p>
+  <dt-code block="" language="html"><pre><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dt-article</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>centered<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">&gt;</span></span>Hello World<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dt-article</span><span class="token punctuation">&gt;</span></span></code></pre></dt-code>
+
+
+<p>To accommodate wide figures in the ACM layout, we can create double column figures. These will span both columns (in ACM layout) and will be automatically placed at the top of the page when switching to ACM layout. To use this feature add the <emph>double-column</emph> class to the figure tag. <strong>But do not use this on the first page.</strong></p>
+<figure class="double-column">
+  <img id="para-coordinates" src="figures/para-coordinates.jpg" width="100%" />
+  <figcaption>A double column figure.</figcaption>
+</figure>
+
+<h2 id="tangleRoot" onload="setUpTangle();">Tangle</h2>
+
+<h3>Class TKToggle TKSwitch</h3>
+<p>
+  For choosing between two options: currently, it is 
+  <span data-var="binarychoice" class="TKToggle TKSwitch">
+    <span>option 0.</span>
+    <span>option 1.</span>
+  </span>
+</p>
+
+<h3>Class TKSwitch</h3>
+<p>
+  For outputting two different texts:
+  <span data-var="binarychoice" class="TKSwitch">
+    <span>the first option has been previously chosen.</span>
+    <span>the second option has been previously chosen.</span>
+  </span>
+</p>
+
+<h3>Class TKAdjustableNumber</h3>
+<p>
+  For adjusting a number, e.g., between 10 and 40 in increments of 2. The current number is
+  <span data-var="numericchoice1" class="TKAdjustableNumber" data-min="10" data-max="40" data-step="2"></span>.
+</p>
+
+<h3>Attribute data-var</h3>
+<p>
+  For simply displaying a value. For example, if you square the number above you get
+  <span data-var="numericchoice1_squared"></span>.
+</p>
+
+<h3>Other features</h3>
+
+<p>For more, see the <a href="http://worrydream.com/Tangle/reference.html">Tangle API reference</a>.</p>
+
+<h2>Additions to Tangle</h2>
+
+<p>Those features are not present in the original Tangle distribution.</p>
+
+<h3>Class TKAdjustableOption</h3>
+<p>
+  For adjusting a number among a list of allowed numbers, e.g., -10, 1, 2, 4, 8 and 16. The current number is
+  <span data-var="numericchoice2" class="TKAdjustableOption" data-values="-10,1,2,4,8,16" data-sensitivity="5"></span>.
+</p>
+
+<h3>Class TKList</h3>
+<p>For choosing an option in a list. Can be an actual list:</p>
+<ul data-var="listchoice" class="TKList">
+    <li>Option 0</li>
+    <li>Option 1</li>
+    <li>Option 2</li>
+</ul>
+<p>But it can also be in a paragraph of text.
+  <span data-var="listchoice" class="TKList">
+    There is <span>option 0</span> we can choose from, but there is also <span>option 1</span>, as well as <span>option 2</span>.
+  </span>
+</p>
+
+<h3>Additional formats</h3>
+
+<p>Use the formats <i>pretty_prob</i> and <i>pretty_percent</i> for rounding probabilities (e.g., p-values) and percents in a smart way.</p>
+<p>For example, a logs-odd of 
+ <span data-var="logsodd" class="TKAdjustableNumber" data-min="-10" data-max="10" data-step="1"></span>
+ corresponds to a probability of <i>p</i> =
+ <span data-var="p" data-format="pretty_prob"></span>.
+</p>
+
+<h3>Multiverse animation</h3>
+
+<p>Hold the "Animate multiverse" button above to animate the multiverse. This calls the <i>randomize()</i> function in the Tangle object.</p>
+
+</dt-article>
+
+<dt-appendix>
+</dt-appendix>
+
+<script type="text/bibliography">
+  @article{gregor2015draw,
+    title={DRAW: A recurrent neural network for image generation},
+    author={Gregor, Karol and Danihelka, Ivo and Graves, Alex and Rezende, Danilo Jimenez and Wierstra, Daan},
+    journal={arXivreprint arXiv:1502.04623},
+    year={2015},
+    url={https://arxiv.org/pdf/1502.04623.pdf}
+  }
+</script>
+
+</body>
