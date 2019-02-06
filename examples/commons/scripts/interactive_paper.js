@@ -65,18 +65,7 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
 var isEdge = !isIE && !!window.StyleMedia;
 
 // Chrome 1+
-var isChrome = !!window.chrome && !!window.chrome.webstore;
-var chromeVersion = -1;
-function getChromeVersion () {     
-    var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-
-    return raw ? parseInt(raw[2], 10) : false;
-}
-var isOldChrome = false;
-if (isChrome){
-  chromeVersion = getChromeVersion();
-  if (chromeVersion < 71) isOldChrome = true;
-}
+var isChrome = (!!window.chrome && !!window.chrome.webstore) || /Google Inc/.test(navigator.vendor);
 
 
 // Blink engine detection
@@ -370,9 +359,6 @@ $(document).ready(function(){
     }
     if(isChrome){
         $('.authors').addClass('chrome');  
-    }
-    if(isOldChrome){
-        $('.authors').addClass('old_chrome');  
     }
     if(isFirefox){
          $('.authors').addClass('firefox'); 
