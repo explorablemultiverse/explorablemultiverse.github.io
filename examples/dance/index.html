@@ -108,9 +108,9 @@
   title: "Adding Inferential Information to Plots using Resampling and Animations"
   description: ""
   authors:
-  - Anonymous Author: http://www.anonymous.org
+  - Pierre Dragicevic: http://www.dragice.fr
   affiliations:
-  - Anonymous Affiliation: http://www.anonymous.org
+  - Inria: http://www.inria.fr
 </script>
 
 <dt-article>
@@ -120,9 +120,9 @@
             <div class="authors col-1">
               <div class="author">
                   <br/>
-                  <div><b>Anonymous Author</b></div>
-                  <div>Anonymous Affiliation</div>
-                  <div>anonymous@email.org</div>
+                  <div><b>Pierre Dragicevic</b></div>
+                  <div>Inria</div>
+                  <div>pierre.dragicevic@inria.fr</div>
                   <br/>
               </div>
           </div>
@@ -149,13 +149,17 @@
 
 <h2>Introduction</h2>
 
-<p>It is well known that results from statistical analyses should always be presented with inferential information in order to prevent misinterpretation. This is the case not only for numbers but also for plots. For example, point estimates should always be presented together with a graphical indication of their uncertainty, such as error bars for interval estimates <dt-cite key="cumming2014new"></dt-cite> or density plots for posterior distributions <dt-cite key="kruschke2010bayesian"></dt-cite>. However, it can be challenging to present inferential information when a plot is very dense or when it involves visual representations for which there is no known method for conveying inferential information. For example, when showing a ranking of different conditions, it is not clear at all how can inferential information be conveyed. Yet, without inferential information uncertainty remains hidden. Here we suggest a general solution based on resampling and animation. We illustrate it by reproducing the figures from a study by Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite>.</p>
+<p>It is well known that results from statistical analyses should always be presented with inferential information in order to prevent misinterpretation. This is the case not only for numbers but also for plots. For example, point estimates should always be presented together with a graphical indication of their uncertainty, such as error bars for interval estimates <dt-cite key="cumming2014new"></dt-cite> or density plots for posterior distributions <dt-cite key="kruschke2010bayesian"></dt-cite>. However, it can be challenging to present inferential information when a plot is very dense or when it involves visual representations for which there is no known method for conveying inferential information. For example, when showing a ranking of different conditions, it is not clear at all how can inferential information be conveyed. Yet, without inferential information uncertainty remains hidden. Here, we suggest a general solution based on resampling and animation. We illustrate it by reproducing the figures from a study by Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite>.</p>
 
 <h2>Background</h2>
 
 <h3>Statistical dances</h3>
 
-<p>The term <i>statistical dance</i> has been used to refer to a plot or an animation that shows the outcomes of multiple simulated replications of the same hypothetical experiment <dt-cite key="dragicevic2017dances"></dt-cite>. This term originates from Geoff Cumming's "dance of <i>p</i>-values", a simple simulation that was meant to show how widely <i>p</i>-values vary across replications <dt-cite key="cumming2009dance"></dt-cite>. The simulation consisted in repeatedly drawing a sample from two normal distributions and computing the <i>p</i>-value for the difference in means. A dance of 95% confidence intervals was also shown. This idea was later applied to Bayes factors <dt-cite key="lakens2016dance"></dt-cite> and to a range of other statistics <dt-cite key="dragicevic2017dances"></dt-cite>. Here we show that the idea can be applied not only to simulations where the population is known, but also to <i>existing datasets</i> where the population is unknown. This is possible thanks to resampling methods.</p>
+<p>The term <i>statistical dance</i> has been used to refer to a plot or an animation that shows the outcomes of multiple simulated replications of the same hypothetical experiment <dt-cite key="dragicevic2017dances"></dt-cite>. This term originates from Geoff Cumming's "dance of <i>p</i>-values", a simple simulation that was meant to show how widely <i>p</i>-values vary across replications <dt-cite key="cumming2009dance"></dt-cite>. The simulation consisted in repeatedly drawing a sample from two normal distributions and computing the <i>p</i>-value for the difference in means. A dance of 95% confidence intervals was also shown. This idea was later applied to Bayes factors <dt-cite key="lakens2016dance"></dt-cite> and to a range of other statistics <dt-cite key="dragicevic2017dances"></dt-cite>.</p>
+
+<p>Statistical dances are a particular case hypothetical outcome plots (HOPs) <dt-cite key="hullman2015hypothetical"></dt-cite>, that "visualize a set of draws from a distribution, where each draw is shown as a new plot in either a small multiples or animated form".</p>
+
+<p>Here we show that statistical dances can be applied not only to simulations where the population is known, but also to <i>existing datasets</i> where the population is unknown. This is possible thanks to resampling methods.</p>
 
 <h3>Resampling</h3>
 
@@ -163,8 +167,7 @@
 
 <p>Here we use bootstrapping not for deriving confidence intervals, but for constructing a set of alternative datasets based on an original (real) dataset. Each dataset is subjected to the same analysis and plotting procedure, yielding a set of <i>bootstrap plots</i>. Once animated, the bootstrap plots become a statistical dance that can convey useful information on the reliability of the different quantities, trends and patterns depicted by the plot. In the next section we illustrate this with concrete examples.</p>
 
-<p>We are far from being the first to use sequential animations to communicate probability distributions and uncertainty. For example, hypothetical outcome plots (HOPs) <dt-cite key="hullman2015hypothetical"></dt-cite> also convey probability distributions by animating random drawings. But unlike HOPs, statistical dances like ours focus on showing the outcomes of hypothetical experiment replications, and they use entire plots as hypothetical outcomes instead of single numerical values. </p>
-
+<br/><br/>
 <h2>Example</h2>
 
 <p>We chose the study by Harrison et al. <dt-cite key="harrison2014ranking"></dt-cite> because the data and analysis scripts are publicly available, and because the article contains an interesting assortment of plots, including a ranking plot. We first briefly summarize the study.</p>
