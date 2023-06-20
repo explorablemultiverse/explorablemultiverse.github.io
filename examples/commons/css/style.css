@@ -61,10 +61,11 @@ h2{
    text-transform: uppercase;
 }
 
-.authors.chrome{
+/* Seems like this is no longer needed and now breaks the layout. */
+/*.authors.chrome{
    margin: -75px 0px 75px -110px;
 }
-
+*/
 .authors.firefox{
    width: 7in;
 }
